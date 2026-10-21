@@ -1,0 +1,15 @@
+<Project Sdk="Godot.NET.Sdk/4.7.2">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <RootNamespace>UIConstraints.Godot</RootNamespace>
+  </PropertyGroup>
+
+  <!-- Godot can only attach scripts that are compiled from sources in this project, so the addon is source in addons/ui_constraints.
+       Core has no Godot specific scripts, so it is referenced as its own project (compiled from the same sources Unity uses). -->
+  <ItemGroup>
+    <ProjectReference Include="..\UIConstraints.Core\UIConstraints.Core.csproj" />
+  </ItemGroup>
+
+</Project>

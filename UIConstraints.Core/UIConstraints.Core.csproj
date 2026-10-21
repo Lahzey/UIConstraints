@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- .NET Standard 2.1 is the newest API surface Unity supports (even in the CoreCLR based Unity 7 alpha) -->
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <!-- Unity uses the compiled DLL, so its compiler (C# 9) doesn't matter here. PolySharp provides the types newer language features
+         expect from the framework. Features that need runtime support (e.g. static abstract interface members, ref fields) still can't be used. -->
+    <LangVersion>12.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <RootNamespace>UIConstraints.Core</RootNamespace>
+    <AssemblyName>UIConstraints.Core</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 1.16 generates code the compiler of the .NET 8.0.2xx SDKs rejects (CS8336) -->
+    <PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+  </ItemGroup>
+
+  <!-- The Unity package uses Core as a precompiled plugin, so every build updates it there. Skipping unchanged files prevents needless reimports in Unity. -->
+  <PropertyGroup>
+    <UnityPluginDirectory>$(MSBuildThisFileDirectory)..\UIConstraints.Unity\Packages\uiconstraints\Runtime\Plugins\</UnityPluginDirectory>
+  </PropertyGroup>
+
+  <Target Name="CopyToUnityPackage" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(UnityPluginDirectory)" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

@@ -1,0 +1,14 @@
+{
+  "name": "com.lahzey.uiconstraints",
+  "version": "0.1.0",
+  "displayName": "UI Constraints",
+  "description": "Declarative UI for Unity: connect data and UI through expressions on constraint components, without custom scripts on the UI or UI references on the game objects.",
+  "unity": "2021.3",
+  "author": {
+    "name": "Arno Rohner"
+  },
+  "dependencies": {
+    "com.unity.ugui": "1.0.0",
+    "com.unity.textmeshpro": "3.0.6"
+  }
+}
