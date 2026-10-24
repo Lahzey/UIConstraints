@@ -16,7 +16,10 @@ public abstract class Token : ParsedElement {
 }
 
 public class IdentifierToken : Token {
-	private static readonly string[] KEYWORDS = { "if", "else", "while", "for", "return", "break", "continue", "int", "float", "bool", "string", "void", "true", "false", "null" };
+	private static readonly string[] KEYWORDS = {
+		"if", "else", "while", "for", "return", "break", "continue", "true", "false", "null", "is", "as", "void",
+		"object", "string", "bool", "char", "byte", "sbyte", "short", "ushort", "int", "uint", "long", "ulong", "float", "double", "decimal"
+	};
 
 	public IdentifierToken(string identifier) {
 		Identifier = identifier;
@@ -140,6 +143,8 @@ public class SingleCharToken : Token {
 	public static SingleCharToken power = new SingleCharToken('^');
 	public static SingleCharToken lparen = new SingleCharToken('(');
 	public static SingleCharToken rparen = new SingleCharToken(')');
+	public static SingleCharToken lbracket = new SingleCharToken('[');
+	public static SingleCharToken rbracket = new SingleCharToken(']');
 	public static SingleCharToken assign = new SingleCharToken('=');
 	public static SingleCharToken greater = new SingleCharToken('>');
 	public static SingleCharToken smaller = new SingleCharToken('<');
@@ -151,7 +156,7 @@ public class SingleCharToken : Token {
 	public static SingleCharToken cond = new SingleCharToken('?');
 	public static SingleCharToken alt = new SingleCharToken(':');
 
-	internal static readonly SingleCharToken[] VALUES = { plus, minus, mult, divide, modulo, power, lparen, rparen, assign, greater, smaller, and, or, not, dot, comma, cond, alt };
+	internal static readonly SingleCharToken[] VALUES = { plus, minus, mult, divide, modulo, power, lparen, rparen, lbracket, rbracket, assign, greater, smaller, and, or, not, dot, comma, cond, alt };
 
 	public readonly char c;
 

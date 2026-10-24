@@ -15,6 +15,9 @@ public class ParseResult : IEnumerable<ParsedElement> {
 
 	public readonly ParseContext context;
 
+	private readonly List<Expression> expressions = new List<Expression>(); // all expressions in the order they were created, so children always come before their parents
+	public IReadOnlyList<Expression> Expressions => expressions;
+
 	public ParseResult(string source, ParseContext context) {
 		this.source = source;
 		this.context = context;
@@ -54,6 +57,10 @@ public class ParseResult : IEnumerable<ParsedElement> {
 		sourceIndexes.Add(endIndex); // the exclusive end index of the element is also the start index of the next element
 	}
 
+	internal void AddExpression(Expression expression) {
+		expressions.Add(expression);
+	}
+
 	public void Replace(int index, ParsedElement newElement) {
 		ReplaceRange(index, 1, newElement);
 	}
@@ -72,10 +79,10 @@ public class ParseResult : IEnumerable<ParsedElement> {
 					expressionsAtPositions[i] = value; // never overwrite existing values, we want the lowest level expression to take priority
 	}
 
-	public void AddExceptionMessage(string message, int startPosition, int endPosition) {
+	public void AddExceptionMessage(string message, int startPosition, int endPosition, string unresolvedIdentifier = null) {
 		if (Exception == null) Exception = new ParseException();
 
-		Exception.AddMessage(message, startPosition, endPosition);
+		Exception.AddMessage(message, startPosition, endPosition, unresolvedIdentifier);
 	}
 
 	public int GetSourceStartIndex(int elementIndex) {

@@ -10,8 +10,8 @@ public static class ParseCache {
 
 	private static readonly List<string> CURRENTLY_PARSING = new List<string>(); // cache keys
 
-	private static string GetCacheKey(string input, ParseContext context) {
-		return context.key + "\0" + input;
+	private static string GetCacheKey(string input, ParseContext context, ParseTarget target) {
+		return target + "\0" + context.key + "\0" + input;
 	}
 
 	/// <summary>
@@ -19,34 +19,34 @@ public static class ParseCache {
 	///     THIS WILL BLOCK NOT ONLY THE CURRENT THREAD, BUT ALSO ANY OTHER THREAD TRYING TO GET A PARSE RESULT, DO NOT USE
 	///     FROM UI!
 	/// </summary>
-	public static ParseResult GetParseResultAwait(string input, ParseContext context) {
-		string cacheKey = GetCacheKey(input, context);
+	public static ParseResult GetParseResultAwait(string input, ParseContext context, ParseTarget target = ParseTarget.Value) {
+		string cacheKey = GetCacheKey(input, context, target);
 		lock (PARSE_RESULTS) {
-			if (!PARSE_RESULTS.ContainsKey(cacheKey)) PARSE_RESULTS.Add(cacheKey, CodeParser.TryParse(input, context));
+			if (!PARSE_RESULTS.ContainsKey(cacheKey)) PARSE_RESULTS.Add(cacheKey, CodeParser.TryParse(input, context, target));
 			return PARSE_RESULTS[cacheKey];
 		}
 	}
 
 	// returns null if the input has not been parsed yet, in which case it is parsed in the background
-	public static ParseResult GetParseResult(string input, ParseContext context) {
-		string cacheKey = GetCacheKey(input, context);
+	public static ParseResult GetParseResult(string input, ParseContext context, ParseTarget target = ParseTarget.Value) {
+		string cacheKey = GetCacheKey(input, context, target);
 		lock (PARSE_RESULTS) {
 			if (PARSE_RESULTS.ContainsKey(cacheKey)) return PARSE_RESULTS[cacheKey];
 		}
 
-		ParseAsync(input, context);
+		ParseAsync(input, context, target);
 		return null;
 	}
 
-	public static void ParseAsync(string input, ParseContext context) {
-		string cacheKey = GetCacheKey(input, context);
+	public static void ParseAsync(string input, ParseContext context, ParseTarget target = ParseTarget.Value) {
+		string cacheKey = GetCacheKey(input, context, target);
 		lock (CURRENTLY_PARSING) {
 			if (CURRENTLY_PARSING.Contains(cacheKey)) return;
 			CURRENTLY_PARSING.Add(cacheKey);
 		}
 
 		Thread thread = new Thread(() => {
-			ParseResult result = CodeParser.TryParse(input, context);
+			ParseResult result = CodeParser.TryParse(input, context, target);
 			lock (PARSE_RESULTS) {
 				if (!PARSE_RESULTS.ContainsKey(cacheKey)) PARSE_RESULTS.Add(cacheKey, result); // the contains key check should be redundant, but just in case
 			}

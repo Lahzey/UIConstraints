@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
-using UIConstraints.Core.Data;
 using UnityEngine;
 
 namespace Example {
 public class Player : MonoBehaviour {
+	public static Player Instance { get; private set; }
+
 	public string name = "Player";
 	public float maxHealth = 100;
 	public float currentHealth = 100;
@@ -14,9 +15,10 @@ public class Player : MonoBehaviour {
 	[SerializeField] private Item bananaItem;
 
 	public Dictionary<Item, int> inventory = new Dictionary<Item, int>();
+	public bool showInventory;
 
 	private void Awake() {
-		DataStore.INSTANCE.Set(DataKeys.player, this);
+		Instance = this;
 	}
 
 	private void Update() {
@@ -26,7 +28,7 @@ public class Player : MonoBehaviour {
 
 		bool shiftDown = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
 		if (Input.GetKeyDown(KeyCode.I))
-			DataStore.INSTANCE.Set(DataKeys.showInventory, !DataStore.INSTANCE.Get(DataKeys.showInventory));
+			showInventory = !showInventory;
 		if (Input.GetKeyDown(KeyCode.A))
 			if (shiftDown) DropItem(appleItem);
 			else PickupItem(appleItem);

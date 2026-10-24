@@ -5,46 +5,58 @@ using System.Reflection;
 using JetBrains.Annotations;
 
 namespace UIConstraints.Core.Parsing.Expressions {
+// a resolved method overload and how arguments are passed to it
+public class MethodCall {
+	public readonly MethodInfo method;
+	public readonly bool expandedParams; // whether the arguments for a params array are passed individually (e.g. Mathf.Max(a, b, c))
+
+	public MethodCall(MethodInfo method, bool expandedParams) {
+		this.method = method;
+		this.expandedParams = expandedParams;
+	}
+}
+
 /**
  * Reflection helpers to find and use the members that expressions access, following the rules of C# where reasonably possible.
  */
 public static class MemberResolver {
-	// implicit numeric conversions as defined by C#
-	private static readonly Dictionary<Type, Type[]> IMPLICIT_NUMERIC_CONVERSIONS = new Dictionary<Type, Type[]> {
-		{ typeof(sbyte), new[] { typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) } },
-		{ typeof(byte), new[] { typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) } },
-		{ typeof(short), new[] { typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal) } },
-		{ typeof(ushort), new[] { typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) } },
-		{ typeof(int), new[] { typeof(long), typeof(float), typeof(double), typeof(decimal) } },
-		{ typeof(uint), new[] { typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) } },
-		{ typeof(long), new[] { typeof(float), typeof(double), typeof(decimal) } },
-		{ typeof(ulong), new[] { typeof(float), typeof(double), typeof(decimal) } },
-		{ typeof(char), new[] { typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal) } },
-		{ typeof(float), new[] { typeof(double) } }
-	};
-
 	public static BindingFlags GetFlags(bool isStatic) {
 		return BindingFlags.Public | (isStatic ? BindingFlags.Static | BindingFlags.FlattenHierarchy : BindingFlags.Instance);
+	}
+
+	// all public methods of a type. Interfaces don't list the members of the interfaces they extend or of object (which every value has), so those are added
+	public static IEnumerable<MethodInfo> GetMethods(Type type, bool isStatic) {
+		BindingFlags flags = GetFlags(isStatic);
+		IEnumerable<MethodInfo> methods = type.GetMethods(flags);
+		if (type.IsInterface && !isStatic) methods = methods.Concat(type.GetInterfaces().SelectMany(i => i.GetMethods(flags))).Concat(typeof(object).GetMethods(flags));
+		return methods;
+	}
+
+	// all public properties of a type, including those of extended interfaces
+	public static IEnumerable<PropertyInfo> GetProperties(Type type, bool isStatic) {
+		BindingFlags flags = GetFlags(isStatic);
+		IEnumerable<PropertyInfo> properties = type.GetProperties(flags);
+		if (type.IsInterface && !isStatic) properties = properties.Concat(type.GetInterfaces().SelectMany(i => i.GetProperties(flags)));
+		return properties;
 	}
 
 	// finds a readable field or (non-indexer) property
 	[CanBeNull]
 	public static MemberInfo FindFieldOrProperty(Type type, string name, bool isStatic) {
-		BindingFlags flags = GetFlags(isStatic);
-		FieldInfo fieldInfo = type.GetField(name, flags);
+		FieldInfo fieldInfo = type.GetField(name, GetFlags(isStatic));
 		if (fieldInfo != null) return fieldInfo;
 
 		// not using GetProperty(name), as that throws if there are multiple properties with that name (e.g. a property hiding a property of its base class)
-		return type.GetProperties(flags).FirstOrDefault(p => p.Name == name && p.GetIndexParameters().Length == 0 && p.GetMethod != null && p.GetMethod.IsPublic);
+		return GetProperties(type, isStatic).FirstOrDefault(p => p.Name == name && p.GetIndexParameters().Length == 0 && p.GetMethod != null && p.GetMethod.IsPublic);
 	}
 
 	[CanBeNull]
-	public static Type FindNestedType(Type type, string name) {
-		return type.GetNestedType(name, BindingFlags.Public);
+	public static Type FindNestedType(Type type, string metadataName) {
+		return type.GetNestedType(metadataName, BindingFlags.Public);
 	}
 
 	public static bool HasMethod(Type type, string name, bool isStatic) {
-		return type.GetMethods(GetFlags(isStatic)).Any(m => m.Name == name && !m.ContainsGenericParameters);
+		return GetMethods(type, isStatic).Any(m => m.Name == name && !m.ContainsGenericParameters);
 	}
 
 	public static object GetValue(MemberInfo member, [CanBeNull] object target, Expression expressionRef) {
@@ -61,83 +73,131 @@ public static class MemberResolver {
 	}
 
 	/**
-	 * Finds the overload of a method that fits the given argument types, which may contain null for arguments whose type is not known before evaluation.
-	 * Returns null if no or multiple overloads fit (which may be resolvable using the argument values instead).
+	 * Finds the overload of a method that fits the given argument types best, like C# does (TypeRules.NULL can be used for the null literal).
+	 * Returns null and sets error if no overload or more than one equally fitting overloads were found. Generic methods are not supported.
 	 */
 	[CanBeNull]
-	public static MethodInfo ResolveMethod(Type type, string name, bool isStatic, Type[] argTypes) {
-		return ResolveMethod(type, name, isStatic, argTypes, (i, parameterType) => argTypes[i] == null || IsImplicitlyConvertible(argTypes[i], parameterType));
-	}
-
-	// finds the overload of a method that fits the given argument values, returns null if no or multiple overloads fit
-	[CanBeNull]
-	public static MethodInfo ResolveMethodForValues(Type type, string name, bool isStatic, object[] values) {
-		Type[] argTypes = values.Select(v => v?.GetType()).ToArray();
-		return ResolveMethod(type, name, isStatic, argTypes, (i, parameterType) => values[i] == null ? !parameterType.IsValueType || Nullable.GetUnderlyingType(parameterType) != null : IsImplicitlyConvertible(argTypes[i], parameterType));
-	}
-
-	private static MethodInfo ResolveMethod(Type type, string name, bool isStatic, Type[] argTypes, Func<int, Type, bool> isArgumentCompatible) {
-		List<MethodInfo> candidates = new List<MethodInfo>();
-		foreach (MethodInfo method in type.GetMethods(GetFlags(isStatic))) {
+	public static MethodCall ResolveMethod(Type type, string name, bool isStatic, Type[] argTypes, out string error) {
+		error = null;
+		List<Candidate> candidates = new List<Candidate>();
+		foreach (MethodInfo method in GetMethods(type, isStatic).Distinct()) {
 			if (method.Name != name || method.ContainsGenericParameters) continue;
-
-			ParameterInfo[] parameters = method.GetParameters();
-			if (argTypes.Length > parameters.Length) continue;
-
-			bool compatible = true;
-			for (int i = 0; i < parameters.Length && compatible; i++)
-				if (i < argTypes.Length) compatible = !parameters[i].ParameterType.IsByRef && isArgumentCompatible(i, parameters[i].ParameterType);
-				else compatible = parameters[i].IsOptional; // arguments left out have to be optional
-			if (compatible) candidates.Add(method);
+			Candidate candidate = Candidate.Create(method, argTypes, false) ?? Candidate.Create(method, argTypes, true); // the normal form is preferred over the expanded params form
+			if (candidate != null) candidates.Add(candidate);
 		}
 
-		if (candidates.Count <= 1) return candidates.FirstOrDefault();
-		if (argTypes.Any(t => t == null)) return null; // can't decide between overloads without knowing all argument types
-
-		// prefer the overloads where the most arguments match exactly (e.g. Max(int, int) over Max(float, float) for two ints), let the default binder decide between those
-		int bestExactMatches = candidates.Max(c => CountExactMatches(c, argTypes));
-		MethodBase[] bestCandidates = candidates.Where(c => CountExactMatches(c, argTypes) == bestExactMatches).Cast<MethodBase>().ToArray();
-		if (bestCandidates.Length == 1) return (MethodInfo)bestCandidates[0];
-		try {
-			return (MethodInfo)Type.DefaultBinder.SelectMethod(GetFlags(isStatic), bestCandidates, argTypes, null);
-		}
-		catch (AmbiguousMatchException) {
+		if (candidates.Count == 0) {
+			error = $"No overload of '{name}' takes the arguments ({string.Join(", ", argTypes.Select(TypeNames.GetDisplayName))})";
 			return null;
 		}
+
+		// the best candidate has to be better than all others
+		foreach (Candidate candidate in candidates)
+			if (candidates.All(other => other == candidate || candidate.IsBetterThan(other, argTypes)))
+				return new MethodCall(candidate.method, candidate.expandedParams);
+
+		List<Candidate> ambiguous = candidates.Where(c => !candidates.Any(other => other != c && other.IsBetterThan(c, argTypes))).ToList();
+		if (ambiguous.Count < 2) ambiguous = candidates;
+		error = $"The call is ambiguous between {GetSignature(ambiguous[0].method)} and {GetSignature(ambiguous[1].method)}";
+		return null;
 	}
 
-	private static int CountExactMatches(MethodInfo method, Type[] argTypes) {
-		ParameterInfo[] parameters = method.GetParameters();
-		int count = 0;
-		for (int i = 0; i < argTypes.Length; i++)
-			if (parameters[i].ParameterType == argTypes[i])
-				count++;
-		return count - (parameters.Length - argTypes.Length); // unused optional parameters make an overload less fitting
+	public static string GetSignature(MethodInfo method) {
+		return $"{method.Name}({string.Join(", ", method.GetParameters().Select(p => TypeNames.GetDisplayName(p.ParameterType)))})";
 	}
 
-	public static bool IsImplicitlyConvertible(Type from, Type to) {
-		if (to.IsAssignableFrom(from)) return true;
-		Type nullableUnderlyingType = Nullable.GetUnderlyingType(to);
-		if (nullableUnderlyingType != null) return IsImplicitlyConvertible(from, nullableUnderlyingType);
-		return IMPLICIT_NUMERIC_CONVERSIONS.TryGetValue(from, out Type[] targets) && Array.IndexOf(targets, to) >= 0;
-	}
+	private class Candidate {
+		public readonly MethodInfo method;
+		public readonly bool expandedParams;
+		private readonly Type[] parameterTypes; // the parameter type for each argument
+		private readonly bool usesDefaults; // whether optional parameters are left out
 
-	public static object Invoke(MethodInfo method, [CanBeNull] object target, object[] values, Expression expressionRef) {
-		ParameterInfo[] parameters = method.GetParameters();
-		object[] arguments = new object[parameters.Length];
-		for (int i = 0; i < parameters.Length; i++) {
-			Type parameterType = Nullable.GetUnderlyingType(parameters[i].ParameterType) ?? parameters[i].ParameterType;
-			if (i >= values.Length) {
-				// optional parameter that was left out
-				object defaultValue = parameters[i].HasDefaultValue ? parameters[i].DefaultValue : Type.Missing;
-				arguments[i] = parameterType.IsEnum && defaultValue != null && defaultValue is not Enum ? Enum.ToObject(parameterType, defaultValue) : defaultValue;
-			}
-			else if (values[i] != null && parameterType.IsPrimitive && values[i].GetType() != parameterType && values[i] is IConvertible) {
-				arguments[i] = Convert.ChangeType(values[i], parameterType); // implicit numeric conversion, e.g. int to float
+		private Candidate(MethodInfo method, bool expandedParams, Type[] parameterTypes, bool usesDefaults) {
+			this.method = method;
+			this.expandedParams = expandedParams;
+			this.parameterTypes = parameterTypes;
+			this.usesDefaults = usesDefaults;
+		}
+
+		// null if the method can't be called with the given argument types in this form
+		[CanBeNull]
+		public static Candidate Create(MethodInfo method, Type[] argTypes, bool expandedParams) {
+			ParameterInfo[] parameters = method.GetParameters();
+			if (parameters.Any(p => p.ParameterType.IsByRef)) return null; // ref and out parameters are not supported
+
+			int fixedCount = parameters.Length;
+			if (expandedParams) {
+				if (parameters.Length == 0 || !parameters[parameters.Length - 1].IsDefined(typeof(ParamArrayAttribute), false)) return null;
+				fixedCount--;
+				if (argTypes.Length < fixedCount) return null;
 			}
 			else {
-				arguments[i] = values[i];
+				if (argTypes.Length > parameters.Length) return null;
+				for (int i = argTypes.Length; i < parameters.Length; i++)
+					if (!parameters[i].IsOptional)
+						return null;
 			}
+
+			Type[] parameterTypes = new Type[argTypes.Length];
+			for (int i = 0; i < argTypes.Length; i++) {
+				parameterTypes[i] = i < fixedCount ? parameters[i].ParameterType : parameters[parameters.Length - 1].ParameterType.GetElementType();
+				if (!TypeRules.IsImplicitlyConvertible(argTypes[i], parameterTypes[i])) return null;
+			}
+
+			return new Candidate(method, expandedParams, parameterTypes, !expandedParams && argTypes.Length < parameters.Length);
+		}
+
+		public bool IsBetterThan(Candidate other, Type[] argTypes) {
+			bool better = false;
+			for (int i = 0; i < argTypes.Length; i++) {
+				int comparison = CompareConversions(argTypes[i], parameterTypes[i], other.parameterTypes[i]);
+				if (comparison < 0) return false;
+				if (comparison > 0) better = true;
+			}
+
+			if (better) return true;
+
+			// tie breakers for equally fitting parameters
+			if (expandedParams != other.expandedParams) return !expandedParams;
+			return usesDefaults != other.usesDefaults && !usesDefaults;
+		}
+
+		// which conversion from the argument type fits better (positive for the first, negative for the second, 0 if neither), using C#'s 'better conversion target' rule
+		private static int CompareConversions(Type argType, Type first, Type second) {
+			if (first == second) return 0;
+			if (argType == first) return 1;
+			if (argType == second) return -1;
+			bool firstToSecond = TypeRules.IsImplicitlyConvertible(first, second);
+			bool secondToFirst = TypeRules.IsImplicitlyConvertible(second, first);
+			if (firstToSecond && !secondToFirst) return 1;
+			if (secondToFirst && !firstToSecond) return -1;
+			return 0;
+		}
+	}
+
+	public static object Invoke(MethodCall call, [CanBeNull] object target, object[] values, Expression expressionRef) {
+		MethodInfo method = call.method;
+		ParameterInfo[] parameters = method.GetParameters();
+		object[] arguments = new object[parameters.Length];
+		int fixedCount = call.expandedParams ? parameters.Length - 1 : parameters.Length;
+		for (int i = 0; i < fixedCount; i++) {
+			Type parameterType = parameters[i].ParameterType;
+			if (i < values.Length) {
+				arguments[i] = TypeRules.ConvertImplicitly(values[i], parameterType);
+			}
+			else {
+				// optional parameter that was left out
+				object defaultValue = parameters[i].HasDefaultValue ? parameters[i].DefaultValue : Type.Missing;
+				Type underlying = Nullable.GetUnderlyingType(parameterType) ?? parameterType;
+				arguments[i] = underlying.IsEnum && defaultValue != null && defaultValue is not Enum ? Enum.ToObject(underlying, defaultValue) : defaultValue;
+			}
+		}
+
+		if (call.expandedParams) {
+			Type elementType = parameters[parameters.Length - 1].ParameterType.GetElementType();
+			Array paramsArray = Array.CreateInstance(elementType, values.Length - fixedCount);
+			for (int i = fixedCount; i < values.Length; i++) paramsArray.SetValue(TypeRules.ConvertImplicitly(values[i], elementType), i - fixedCount);
+			arguments[parameters.Length - 1] = paramsArray;
 		}
 
 		try {

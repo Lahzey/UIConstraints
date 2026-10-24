@@ -1,32 +1,49 @@
 ﻿using System;
+using JetBrains.Annotations;
 using UIConstraints.Core.Data;
 
 namespace UIConstraints.Core.Parsing.Expressions {
 // Priorities follow C#: ^ (power here, not xor) before * / % before + -
-public abstract class CalculationExpression : Expression {
+public abstract class CalculationExpression : BinaryExpression {
 	// the numeric types calculations are performed in, by level (smaller integer types are promoted to int like in C#, and yes, long * float = float, not double)
 	private static readonly Type[] LEVEL_TYPES = { typeof(int), typeof(long), typeof(float), typeof(double) };
 
-	public Expression Left => (Expression)args[0];
-	public Expression Right => (Expression)args[1];
+	[CanBeNull] private Type resultType;
 
 	protected abstract char Operation { get; }
+
+	public override void Prepare(object[] args, ParseContext context) {
+		base.Prepare(args, context);
+		Type leftType = Left.GetExpectedType();
+		Type rightType = Right.GetExpectedType();
+		if (leftType == null || rightType == null || DescribeNonValue(Left) != null || DescribeNonValue(Right) != null) return;
+
+		if (Operation == '+' && (leftType == typeof(string) || rightType == typeof(string))) {
+			resultType = typeof(string); // string concatenation like in C#
+			return;
+		}
+
+		int leftLevel = GetLevel(leftType);
+		int rightLevel = GetLevel(rightType);
+		if (leftLevel < 0 || rightLevel < 0) return;
+		resultType = Operation == '^' ? typeof(double) : LEVEL_TYPES[Math.Max(leftLevel, rightLevel)];
+	}
+
+	public override Type GetExpectedType() {
+		return resultType;
+	}
+
+	public override void Validate(ParseResult parseResult) {
+		bool leftValid = CheckValue(Left, parseResult);
+		bool rightValid = CheckValue(Right, parseResult);
+		if (leftValid && rightValid && resultType == null)
+			AddError(parseResult, $"Operator '{Operation}' cannot be applied to operands of type {TypeNames.GetDisplayName(Left.GetExpectedType())} and {TypeNames.GetDisplayName(Right.GetExpectedType())}");
+	}
 
 	public override object Evaluate(DataContext context) {
 		object left = Left.Evaluate(context);
 		object right = Right.Evaluate(context);
 		return PerformOperation(left, right, Operation, this);
-	}
-
-	public override Type GetExpectedType() {
-		Type leftType = Left.GetExpectedType();
-		Type rightType = Right.GetExpectedType();
-		if (Operation == '+' && (leftType == typeof(string) || rightType == typeof(string))) return typeof(string);
-		if (leftType == null || rightType == null) return null;
-		int leftLevel = GetLevel(leftType);
-		int rightLevel = GetLevel(rightType);
-		if (leftLevel < 0 || rightLevel < 0) return null;
-		return Operation == '^' ? typeof(double) : LEVEL_TYPES[Math.Max(leftLevel, rightLevel)];
 	}
 
 	public static object PerformOperation(object a, object b, char operation, Expression expressionRef) {
@@ -61,7 +78,7 @@ public abstract class CalculationExpression : Expression {
 		return level;
 	}
 
-	// returns -1 for non-numeric types
+	// returns -1 for unsupported types
 	private static int GetLevel(Type type) {
 		if (type == typeof(int) || type == typeof(short) || type == typeof(ushort) || type == typeof(byte) || type == typeof(sbyte) || type == typeof(char)) return 0;
 		if (type == typeof(long) || type == typeof(uint)) return 1;

@@ -4,6 +4,13 @@ using System.Linq;
 using UIConstraints.Core.Parsing.Expressions;
 
 namespace UIConstraints.Core.Parsing {
+// what the parsed source has to be
+public enum ParseTarget {
+	Value, // an expression that can be evaluated
+	Type, // a type, e.g. List<int>
+	Any // anything, including namespaces (e.g. for code completion)
+}
+
 public static class CodeParser {
 	private static readonly object INIT_LOCK = new object();
 
@@ -13,7 +20,7 @@ public static class CodeParser {
 		IEnumerable<Type> subclasses =
 			from assembly in AppDomain.CurrentDomain.GetAssemblies()
 			from type in assembly.GetTypes()
-			where type.IsSubclassOf(typeof(Expression))
+			where type.IsSubclassOf(typeof(Expression)) && !type.IsAbstract
 			select type;
 		Dictionary<string, Type> patternTypes = new Dictionary<string, Type>();
 		List<CompiledPattern> patterns = new List<CompiledPattern>();
@@ -35,7 +42,7 @@ public static class CodeParser {
 		patternsByPriority = patterns.GroupBy(p => p.priority).OrderByDescending(g => g.Key).Select(g => g.ToList()).ToList();
 	}
 
-	public static ParseResult TryParse(string valueString, ParseContext context = null) {
+	public static ParseResult TryParse(string valueString, ParseContext context = null, ParseTarget target = ParseTarget.Value) {
 		lock (INIT_LOCK) {
 			if (patternsByPriority == null) Init();
 		}
@@ -52,6 +59,9 @@ public static class CodeParser {
 				}
 		} while (matched);
 
+		// expressions can only be validated now, as they may change until everything is parsed (e.g. names are re-resolved as members once they are accessed)
+		foreach (Expression expression in parseResult.Expressions) expression.Validate(parseResult);
+
 		// whitespace that is not part of any expression (e.g. before or after the expression) is fine, anything else should have been resolved to one expression
 		List<int> elementIndexes = Enumerable.Range(0, parseResult.Count).Where(i => parseResult[i] is not WhitespaceToken).ToList();
 		bool hasUnresolvedTokens = false;
@@ -64,8 +74,21 @@ public static class CodeParser {
 		if (!hasUnresolvedTokens && elementIndexes.Count > 1)
 			// if we only have values in the parse result, but there are more than one
 			parseResult.AddExceptionMessage("Cannot have more than one expression in a expression expression", parseResult.GetSourceStartIndex(elementIndexes[1]), parseResult.source.Length);
+		else if (elementIndexes.Count == 1 && parseResult[elementIndexes[0]] is Expression root)
+			ValidateRoot(root, target, parseResult);
 
 		return parseResult;
+	}
+
+	private static void ValidateRoot(Expression root, ParseTarget target, ParseResult parseResult) {
+		switch (target) {
+			case ParseTarget.Value:
+				Expression.CheckValue(root, parseResult);
+				break;
+			case ParseTarget.Type:
+				Expression.CheckType(root, parseResult);
+				break;
+		}
 	}
 
 	/**

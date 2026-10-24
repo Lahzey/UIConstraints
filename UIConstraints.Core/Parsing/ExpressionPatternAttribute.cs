@@ -30,8 +30,9 @@ public class ExpressionPatternAttribute : Attribute {
 	}
 
 	public static string TypeOfPattern(Type type) {
-		// return a regex pattern that matches the type plus any additional type names after a trailing '>' that would denote a subtype (of any depth)
-		return Regex.Escape(TypeOfPlaceholder(type)) + @"(?:>[a-zA-Z0-9_\.+]+)*";
+		// return a regex pattern that matches the type plus any additional type names after a trailing '>' that would denote a subtype (of any depth).
+		// The placeholder has to end there (followed by a space or the end), otherwise a pattern could match only a part of a placeholder (e.g. of a subtype), which would break lookaheads after it
+		return Regex.Escape(TypeOfPlaceholder(type)) + @"(?:>[a-zA-Z0-9_\.+]+)*(?![^\x20])"; // \x20 instead of a space, as spaces in patterns are replaced (see GetPattern)
 	}
 
 	public static string TypeOfPlaceholder(Type type) {

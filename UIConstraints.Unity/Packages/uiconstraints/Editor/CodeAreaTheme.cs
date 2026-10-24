@@ -34,6 +34,7 @@ public class CodeAreaTheme {
 		TypeTextColor = new Color(1.0f, 0.7764706f, 0.42745098f), // color taken from 'Constructor declaration'
 		VariableTextColor = new Color(0.3137255f, 0.47058824f, 0.45490196f), // color taken from 'Type parameter'
 		FieldTextColor = new Color(0.59607846f, 0.4627451f, 0.6666667f),
+		StaticFieldTextColor = new Color(0.8784314f, 0.42352942f, 0.62352943f), // not taken from IntelliJ (which uses italics instead), picked to be distinguishable from instance fields
 		MethodTextColor = new Color(0.22352941f, 0.8f, 0.60784316f), // not taken from IntelliJ, picked to be distinguishable from types and fields
 		ErrorTextColor = new Color(0.7372549f, 0.24705882f, 0.23529412f),
 		CursorColor = Color.white,
@@ -58,6 +59,7 @@ public class CodeAreaTheme {
 		TypeTextColor = new Color(0.0f, 0.38431373f, 0.47843137f), // color taken from 'Constructor declaration'
 		VariableTextColor = new Color(0.0f, 0.49411765f, 0.5411765f), // color taken from 'Type parameter'
 		FieldTextColor = new Color(0.5294118f, 0.0627451f, 0.5803922f),
+		StaticFieldTextColor = new Color(0.6901961f, 0.11764706f, 0.41960785f), // not taken from IntelliJ (which uses italics instead), picked to be distinguishable from instance fields
 		MethodTextColor = new Color(0.6f, 0.4117647f, 0.0f), // not taken from IntelliJ, picked to be distinguishable from types and fields
 		ErrorTextColor = new Color(0.9607843f, 0.0f, 0.0f),
 		CursorColor = Color.black,
@@ -85,6 +87,7 @@ public class CodeAreaTheme {
 	public Color TypeTextColor { get; private set; }
 	public Color VariableTextColor { get; private set; }
 	public Color FieldTextColor { get; private set; }
+	public Color StaticFieldTextColor { get; private set; }
 	public Color MethodTextColor { get; private set; }
 	public Color ErrorTextColor { get; private set; }
 	public Color CursorColor { get; private set; }
@@ -106,18 +109,19 @@ public class CodeAreaTheme {
 		switch (expression) {
 			case VariableExpression variableExpression:
 				switch (variableExpression.Kind) {
-					case VariableKind.DataKey:
+					case VariableKind.ContextVariable:
 						return VariableTextColor;
 					case VariableKind.Type:
 						return TypeTextColor;
 					case VariableKind.Field:
 					case VariableKind.Property:
-						return FieldTextColor;
+						return variableExpression.IsStatic ? StaticFieldTextColor : FieldTextColor;
 					case VariableKind.Method:
 						return MethodTextColor;
 					case VariableKind.Invalid:
+					case VariableKind.Unresolved:
 						return ErrorTextColor;
-					default: // not known before evaluation
+					default: // namespaces
 						return DefaultTextColor;
 				}
 			case StringExpression:
@@ -126,6 +130,7 @@ public class CodeAreaTheme {
 				return NumberTextColor;
 			case BooleanExpression:
 			case NullExpression:
+			case TypeKeywordExpression:
 				return KeywordTextColor;
 			default: // includes null for text that is not part of an expression (e.g. unresolved tokens)
 				return DefaultTextColor;

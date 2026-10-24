@@ -14,6 +14,8 @@ public class RenderManager : MonoBehaviour {
 	private readonly Dictionary<int, UINode> uiNodeMapping = new Dictionary<int, UINode>(); // maps gameObject instanceIDs to UINodes
 	private float storedDeltaTime = 0f;
 
+	private readonly DataContext rootContext = new DataContext(null); // global data comes from static members, this only holds what constraints add (e.g. ForEachConstraint variables)
+
 
 	private static RenderManager InitDefaultRenderManager() {
 		// create object in scene to hold the default render manager
@@ -33,7 +35,7 @@ public class RenderManager : MonoBehaviour {
 	}
 
 	private void Render() {
-		foreach (UINode uiNode in rootUINodes) uiNode.Render(DataStore.INSTANCE);
+		foreach (UINode uiNode in rootUINodes) uiNode.Render(rootContext);
 	}
 
 	public UINode GetUINode(int instanceID) {

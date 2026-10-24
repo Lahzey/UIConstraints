@@ -321,12 +321,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minXConstraint:
     input: 
+    usings: []
   maxXConstraint:
-    input: player.currentHealth / player.maxHealth
+    input: Player.Instance.currentHealth / Player.Instance.maxHealth
+    usings:
+    - Example
+    - UnityEngine
+    - System
+    - System.Collections.Generic
   minYConstraint:
     input: 
+    usings: []
   maxYConstraint:
     input: 
+    usings: []
 --- !u!114 &222290614
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -506,6 +514,7 @@ MonoBehaviour:
   appleItem: {fileID: 11400000, guid: 826368f60eb16d34ab6cabd42d1e2962, type: 2}
   orangeItem: {fileID: 11400000, guid: cb68d617b66a9df4fbc4ab6182bac469, type: 2}
   bananaItem: {fileID: 11400000, guid: 253c668560a2ffa499057eeea3a6de89, type: 2}
+  showInventory: 0
 --- !u!4 &474671988
 Transform:
   m_ObjectHideFlags: 0
@@ -828,6 +837,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textConstraint:
     input: item.Value
+    usings: []
 --- !u!114 &1034255590
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1144,6 +1154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   imageConstraint:
     input: item.Key.sprite
+    usings: []
 --- !u!1 &1270289558
 GameObject:
   m_ObjectHideFlags: 0
@@ -1317,7 +1328,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   varName: item
   collectionConstraint:
-    input: player.inventory
+    input: Player.Instance.inventory
+    usings:
+    - Example
 --- !u!114 &1307837591
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1331,7 +1344,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   conditionConstraint:
-    input: showInventory
+    input: Player.Instance.showInventory
+    usings:
+    - Example
   disableAtRuntime: 0
 --- !u!114 &1307837592
 MonoBehaviour:
@@ -1410,6 +1425,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textConstraint:
     input: item.Key.name
+    usings: []
 --- !u!114 &1337419471
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1559,7 +1575,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   textConstraint:
-    input: player.name.ToUpper()
+    input: Player.Instance.name.Replace("yer", "jjorr").ToUpper()
+    usings:
+    - Example
 --- !u!114 &1825235212
 MonoBehaviour:
   m_ObjectHideFlags: 0

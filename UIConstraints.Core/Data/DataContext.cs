@@ -24,6 +24,17 @@ public class DataContext {
 		return GetByHash(CalculateHash(key), defaultValue);
 	}
 
+	// unlike Get, this tells whether the key exists (with a null value) or not
+	public bool TryGet(string key, out object value) {
+		return TryGetByHash(CalculateHash(key), out value);
+	}
+
+	private bool TryGetByHash(ulong hash, out object value) {
+		if (data.TryGetValue(hash, out value)) return true;
+		if (parent != null) return parent.TryGetByHash(hash, out value);
+		return false;
+	}
+
 	private object GetByHash(ulong hash, object defaultValue) {
 		if (data.ContainsKey(hash))
 			return data[hash];

@@ -77,7 +77,10 @@ public class PatternMatch {
 
 	private void ReplaceMatchedElements(Type matchedType) {
 		Expression expression = (Expression)Activator.CreateInstance(matchedType);
+		expression.SourceStart = parseResult.GetSourceStartIndex(firstMatchedElementIndex);
+		expression.SourceEnd = parseResult.GetSourceEndIndex(currentMatchedElementIndex - 1);
 		expression.Prepare(matchedElements.ToArray(), parseResult.context);
+		parseResult.AddExpression(expression);
 		parseResult.ReplaceRange(firstMatchedElementIndex, currentMatchedElementIndex - firstMatchedElementIndex, expression);
 	}
 

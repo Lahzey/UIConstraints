@@ -14,6 +14,7 @@ public class CodeArea {
 
 	private static readonly Vector2 PADDING = new Vector2(5, 2); // left, top and right, bottom both have this padding
 	public static readonly int MAX_AUTO_COMPLETE_OPTIONS = 5;
+	private static readonly string[] EDIT_COMMANDS = { "Copy", "Cut", "Paste", "SelectAll" }; // Unity sends these shortcuts as commands instead of key events
 
 	private static readonly GUIStyle CODE_SEGMENT_STYLE;
 
@@ -40,6 +41,7 @@ public class CodeArea {
 		Rect inputBounds = new Rect(position.position + PADDING, position.size - PADDING * 2);
 		switch (Event.current.GetTypeForControl(controlId)) {
 			case EventType.KeyDown:
+				if (!hasFocus) break; // key events are sent to every control, only the focused one may handle them
 				string newInput = HandleKeyDownEvent(input, usings, state, out bool canShowAutoComplete);
 				if (newInput != input) {
 					if (canShowAutoComplete) state.CreateAutoComplete(newInput, new ParseContext(usings), false);
@@ -49,21 +51,48 @@ public class CodeArea {
 
 				input = newInput;
 				break;
+			case EventType.ValidateCommand:
+				if (hasFocus && IsEditCommand(Event.current.commandName)) Event.current.Use(); // tells Unity that this control handles the command, which it then sends as ExecuteCommand
+				break;
+			case EventType.ExecuteCommand:
+				if (!hasFocus || !IsEditCommand(Event.current.commandName)) break;
+				string commandInput = HandleEditCommand(input, state, Event.current.commandName);
+				if (commandInput != input) GUI.changed = true;
+				input = commandInput;
+				state.HideAutoComplete();
+				Event.current.Use();
+				break;
 			case EventType.MouseDown:
-				if (!hasFocus && inputBounds.Contains(Event.current.mousePosition))
-					GUIUtility.keyboardControl = controlId;
-				else if (hasFocus && !inputBounds.Contains(Event.current.mousePosition)) GUIUtility.keyboardControl = 0;
+				if (!inputBounds.Contains(Event.current.mousePosition)) {
+					// clicking elsewhere removes the focus, but the event must be left for whatever was clicked (e.g. another code area)
+					if (hasFocus) {
+						GUIUtility.keyboardControl = 0;
+						state.HideAutoComplete();
+					}
 
+					break;
+				}
+
+				GUIUtility.keyboardControl = controlId;
+				GUIUtility.hotControl = controlId; // keeps drag events coming to this control, even outside of its bounds
 				int clickedIndex = state.GetTextIndexAtPosition(Event.current.mousePosition - inputBounds.position);
-				if (Event.current.shift) state.selectionEndInternal = clickedIndex;
+				if (Event.current.clickCount == 2) SelectWordAt(input, state, clickedIndex);
+				else if (Event.current.clickCount >= 3) SelectLineAt(input, state, clickedIndex);
+				else if (Event.current.shift) state.selectionEndInternal = clickedIndex;
 				else state.SetCursor(clickedIndex);
 				Event.current.Use();
 				state.HideAutoComplete();
 				break;
 			case EventType.MouseDrag:
+				if (GUIUtility.hotControl != controlId) break;
 				state.selectionEndInternal = state.GetTextIndexAtPosition(Event.current.mousePosition - inputBounds.position);
 				Event.current.Use();
 				state.HideAutoComplete();
+				break;
+			case EventType.MouseUp:
+				if (GUIUtility.hotControl != controlId) break;
+				GUIUtility.hotControl = 0;
+				Event.current.Use();
 				break;
 			case EventType.Repaint:
 				Draw(position, input, parseResult, hasFocus, state);
@@ -282,44 +311,23 @@ public class CodeArea {
 				break;
 			default:
 				char c = Event.current.character;
-				if (c >= 32 && c <= 126) // any visible ascii character is in this range
-					switch (c) {
-						case 'v':
-						case 'V':
-							input = ReplaceSelection(input, state, Event.current.control ? GUIUtility.systemCopyBuffer : Event.current.character.ToString());
-							Event.current.Use();
-							break;
-						case 'c':
-						case 'C':
-							if (Event.current.control) GUIUtility.systemCopyBuffer = input.Substring(state.SelectionStart, state.SelectionEnd - state.SelectionStart);
-							else input = ReplaceSelection(input, state, Event.current.character.ToString());
-							Event.current.Use();
-							break;
-						case 'a':
-						case 'A':
-							if (Event.current.control) {
-								state.selectionStartInternal = 0;
-								state.selectionEndInternal = input.Length;
-							}
-							else {
-								input = ReplaceSelection(input, state, Event.current.character.ToString());
-							}
 
-							Event.current.Use();
-							break;
-						case ' ':
-							if (Event.current.control)
-								state.CreateAutoComplete(input, new ParseContext(usings), true); // this will refresh even if the autocomplete is already shown, to allow the user to refresh options if the tool bugs out
-							else input = ReplaceSelection(input, state, Event.current.character.ToString());
-							Event.current.Use();
-							break;
-						default:
-							input = ReplaceSelection(input, state, Event.current.character.ToString());
-							Event.current.Use();
-							break;
+				// with ctrl held keys are shortcuts, copy, paste etc. arrive as commands (see HandleEditCommand). AltGr is reported as ctrl + alt on Windows, but types characters like '|' on some layouts
+				if ((Event.current.control || Event.current.command) && !Event.current.alt) {
+					if (c == ' ' || Event.current.keyCode == KeyCode.Space) {
+						state.CreateAutoComplete(input, new ParseContext(usings), true); // this will refresh even if the autocomplete is already shown, to allow the user to refresh options if the tool bugs out
+						Event.current.Use();
 					}
 
-				canShowAutoComplete = !char.IsWhiteSpace(c);
+					break;
+				}
+
+				if (c >= 32 && !char.IsControl(c)) { // visible characters
+					input = ReplaceSelection(input, state, c.ToString());
+					Event.current.Use();
+					canShowAutoComplete = !char.IsWhiteSpace(c);
+				}
+
 				break;
 		}
 
@@ -338,7 +346,70 @@ public class CodeArea {
 		input = ReplaceSelection(input, state, option.insertText);
 		state.SetCursor(state.SelectionEnd + option.cursorOffset);
 
-		if (option.requiredNamespace != null && !usings.Contains(option.requiredNamespace)) usings.Add(option.requiredNamespace);
+		if (option.requiredUsing != null && !usings.Contains(option.requiredUsing)) usings.Add(option.requiredUsing);
+		return input;
+	}
+
+	// selects the identifier (or number) at a cursor position, like IDEs do on double click. Next to anything else, only that character is selected
+	private static void SelectWordAt(string input, CodeAreaState state, int index) {
+		// the cursor position is between two characters, prefer the one after it unless only the one before is part of a word (e.g. clicking right of the last letter)
+		int charIndex = index < input.Length && IsWordCharacter(input[index]) ? index : index - 1;
+		if (charIndex < 0 || charIndex >= input.Length || !IsWordCharacter(input[charIndex])) {
+			charIndex = Math.Min(index, input.Length - 1);
+			if (charIndex < 0 || input[charIndex] == '\n') state.SetCursor(index);
+			else {
+				state.selectionStartInternal = charIndex;
+				state.selectionEndInternal = charIndex + 1;
+			}
+
+			return;
+		}
+
+		int start = charIndex;
+		int end = charIndex + 1;
+		while (start > 0 && IsWordCharacter(input[start - 1])) start--;
+		while (end < input.Length && IsWordCharacter(input[end])) end++;
+		state.selectionStartInternal = start;
+		state.selectionEndInternal = end;
+	}
+
+	private static void SelectLineAt(string input, CodeAreaState state, int index) {
+		state.selectionStartInternal = index > 0 ? input.LastIndexOf('\n', index - 1) + 1 : 0;
+		int lineEnd = input.IndexOf('\n', index);
+		state.selectionEndInternal = lineEnd < 0 ? input.Length : lineEnd;
+	}
+
+	private static bool IsWordCharacter(char c) {
+		return char.IsLetterOrDigit(c) || c == '_';
+	}
+
+	private static bool IsEditCommand(string commandName) {
+		return Array.IndexOf(EDIT_COMMANDS, commandName) >= 0;
+	}
+
+	private static string HandleEditCommand(string input, CodeAreaState state, string commandName) {
+		state.ClampSelection(input.Length);
+		string selection = input.Substring(state.SelectionStart, state.SelectionEnd - state.SelectionStart);
+		switch (commandName) {
+			case "Copy":
+				if (selection.Length > 0) GUIUtility.systemCopyBuffer = selection;
+				break;
+			case "Cut":
+				if (selection.Length > 0) {
+					GUIUtility.systemCopyBuffer = selection;
+					input = ReplaceSelection(input, state, "");
+				}
+
+				break;
+			case "Paste":
+				input = ReplaceSelection(input, state, GUIUtility.systemCopyBuffer.Replace("\r\n", "\n")); // the code area only uses \n for line breaks
+				break;
+			case "SelectAll":
+				state.selectionStartInternal = 0;
+				state.selectionEndInternal = input.Length;
+				break;
+		}
+
 		return input;
 	}
 

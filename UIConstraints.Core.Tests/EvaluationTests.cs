@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using UIConstraints.Core.Data;
@@ -7,7 +8,16 @@ using UIConstraints.Core.Tests.TestGame;
 
 namespace UIConstraints.Core.Tests {
 public class EvaluationTests {
-	private const string TEST_GAME = "UIConstraints.Core.Tests.TestGame";
+	public const string TEST_GAME = "UIConstraints.Core.Tests.TestGame";
+	public const string OTHER_GAME = "UIConstraints.Core.Tests.OtherGame";
+
+	// what SetUp puts into the context
+	public static readonly Dictionary<string, Type> VARIABLES = new Dictionary<string, Type> {
+		{ "player", typeof(Player) },
+		{ "showInventory", typeof(bool) },
+		{ "item", typeof(Item) },
+		{ "zoo", typeof(Zoo) }
+	};
 
 	private DataContext context;
 	private Player player;
@@ -19,16 +29,21 @@ public class EvaluationTests {
 		context.SetLocal("player", player);
 		context.SetLocal("showInventory", true);
 		context.SetLocal("item", new Item("LoopItem"));
+		context.SetLocal("zoo", new Zoo());
 	}
 
 	private object Evaluate(string code, params string[] usings) {
-		ParseResult parseResult = CodeParser.TryParse(code, new ParseContext(usings));
+		return Evaluate(code, VARIABLES, usings);
+	}
+
+	private object Evaluate(string code, Dictionary<string, Type> variables, params string[] usings) {
+		ParseResult parseResult = CodeParser.TryParse(code, new ParseContext(usings, variables));
 		Assert.That(parseResult.Success, Is.True, () => $"'{code}' failed to parse: " + string.Join(" | ", Enumerable.Range(0, parseResult.Exception.MessageCount()).Select(i => parseResult.Exception.GetMessage(i))));
 		return parseResult.Expression?.Evaluate(context);
 	}
 
 	// NUnit considers numbers of different types equal (e.g. 7L and 7), but the type matters for overload resolution
-	private static void AssertResult(object actual, object expected) {
+	public static void AssertResult(object actual, object expected) {
 		Assert.That(actual, Is.EqualTo(expected));
 		Assert.That(actual?.GetType(), Is.EqualTo(expected?.GetType()));
 	}
@@ -52,6 +67,7 @@ public class EvaluationTests {
 	[TestCase("\"HP: \" + 5", "HP: 5")]
 	[TestCase("  1 + 2  ", 3)]
 	[TestCase("1 +\n2", 3)]
+	[TestCase("(1) - 2", -1)] // a bracket around a value followed by an operator is not a cast
 	public void Arithmetic(string code, object expected) {
 		AssertResult(Evaluate(code), expected);
 	}
@@ -64,12 +80,15 @@ public class EvaluationTests {
 	[TestCase("1 + 1 == 2 && 2 > 1", true)]
 	[TestCase("1 != 2", true)]
 	[TestCase("null == null", true)]
+	[TestCase("item == null", false)]
 	[TestCase("1 == 1 && 2 == 2", true)]
 	[TestCase("1 >= 1 && 2 <= 2", true)]
 	[TestCase("showInventory", true)]
 	[TestCase("!showInventory", false)]
 	[TestCase("true ? 1 : 2", 1)]
+	[TestCase("true ? 1 : 2.5", 1f)] // converted to the common type
 	[TestCase("1 > 2 ? \"a\" : \"b\"", "b")]
+	[TestCase("false ? item : null", null)]
 	public void Logic(string code, object expected) {
 		AssertResult(Evaluate(code), expected);
 	}
@@ -80,6 +99,8 @@ public class EvaluationTests {
 	[TestCase("item.name", "LoopItem")]
 	[TestCase("player.inventory.Count", 0)]
 	[TestCase("!showInventory || player.level > 2", true)]
+	[TestCase("zoo.named.Name", "dog")] // interface members
+	[TestCase("zoo.named.ToString()", "UIConstraints.Core.Tests.TestGame.Dog")] // object members on interfaces
 	public void MemberAccess(string code, object expected) {
 		AssertResult(Evaluate(code), expected);
 	}
@@ -98,16 +119,15 @@ public class EvaluationTests {
 	[TestCase("10 - player.Add(1, 2) * (1 + 1)", 4)]
 	[TestCase("player.name.ToUpper()", "HERO")]
 	[TestCase("player.name.Substring(1, 2)", "er")]
-	[TestCase("player.DoNothing()", null)]
 	public void FunctionCalls(string code, object expected) {
 		AssertResult(Evaluate(code), expected);
 	}
 
 	[TestCase("player.Throws()", "Method 'Throws' threw InvalidOperationException: boom")]
-	[TestCase("player.Missing()", "No method 'Missing' with fitting parameters found for type 'UIConstraints.Core.Tests.TestGame.Player'")]
-	[TestCase("GameState.player.name", "Trying to access 'player' of null")] // without the using, GameState is an (unset) context variable
+	[TestCase("(Dog)zoo.plainAnimal", "Cannot cast Animal to Dog")]
+	[TestCase("(int)(object)zoo", "Cannot cast Zoo to int")]
 	public void EvaluationErrors(string code, string message) {
-		EvaluationException exception = Assert.Throws<EvaluationException>(() => Evaluate(code));
+		EvaluationException exception = Assert.Throws<EvaluationException>(() => Evaluate(code, TEST_GAME));
 		Assert.That(exception.Message, Is.EqualTo(message));
 	}
 
@@ -115,7 +135,7 @@ public class EvaluationTests {
 	[TestCase("player.Add(1 2)")]
 	[TestCase("Foo(1)")] // there is no implicit 'this' to call methods on
 	public void ParseErrors(string code) {
-		Assert.That(CodeParser.TryParse(code).Success, Is.False);
+		Assert.That(CodeParser.TryParse(code, new ParseContext(null, VARIABLES)).Success, Is.False);
 	}
 
 	[TestCase("Math.Max(3, 7)", 7, "System")]
@@ -131,17 +151,60 @@ public class EvaluationTests {
 		AssertResult(Evaluate(code, usedNamespace), expected);
 	}
 
+	[TestCase("GameState.player.name", "Unknown identifier 'GameState'", "GameState")] // the namespace is not used
+	[TestCase("Foo.bar + 1", "Unknown identifier 'Foo'", "Foo")]
+	[TestCase("Player.Kind", "'Player' is ambiguous between UIConstraints.Core.Tests.TestGame.Player and UIConstraints.Core.Tests.OtherGame.Player", "Player", TEST_GAME, OTHER_GAME)]
+	[TestCase("Lisst<int>", "The type 'Lisst<>' could not be found", "Lisst`1")]
+	public void UnresolvedIdentifiers(string code, string message, string identifier, params string[] usings) {
+		ParseResult parseResult = CodeParser.TryParse(code, new ParseContext(usings, VARIABLES));
+		Assert.That(parseResult.Success, Is.False);
+		Assert.That(parseResult.Exception.GetMessage(0), Is.EqualTo(message));
+		Assert.That(parseResult.Exception.GetUnresolvedIdentifier(0), Is.EqualTo(identifier));
+		string name = TypeNames.GetBaseName(identifier);
+		Assert.That(parseResult.Exception.GetStartPosition(0), Is.EqualTo(code.IndexOf(name, StringComparison.Ordinal)));
+		Assert.That(parseResult.Exception.GetEndPosition(0), Is.EqualTo(code.IndexOf(name, StringComparison.Ordinal) + name.Length));
+	}
+
 	[Test]
-	public void TypesAreNotValues() {
-		EvaluationException exception = Assert.Throws<EvaluationException>(() => Evaluate("Player", TEST_GAME));
-		Assert.That(exception.Message, Is.EqualTo("'Player' is a type and cannot be used as a value"));
+	public void VariablesHideTypes() {
+		context.SetLocal("Player", "variable");
+		AssertResult(Evaluate("Player", new Dictionary<string, Type> { { "Player", typeof(string) } }, TEST_GAME), "variable");
+	}
+
+	[Test]
+	public void VariablesMustMatchTheirDeclaredType() {
+		context.SetLocal("item", "not an item");
+		EvaluationException exception = Assert.Throws<EvaluationException>(() => Evaluate("item.name"));
+		Assert.That(exception.Message, Is.EqualTo("The variable 'item' is declared as Item, but its value is string"));
+
+		exception = Assert.Throws<EvaluationException>(() => Evaluate("missing", new Dictionary<string, Type> { { "missing", typeof(int) } }));
+		Assert.That(exception.Message, Is.EqualTo("The variable 'missing' is not available here"));
+	}
+
+	[TestCase("Player.Kind", "other", TEST_GAME, OTHER_GAME, "Player=UIConstraints.Core.Tests.OtherGame.Player")] // alias resolves the ambiguity
+	[TestCase("P2.Kind + Player.StaticCount", "other42", TEST_GAME, "P2=UIConstraints.Core.Tests.OtherGame.Player")]
+	[TestCase("Nested.Info", "nested", "Nested=UIConstraints.Core.Tests.TestGame.Player.Nested")] // nested types use '.' like in C#
+	[TestCase("((IntList)zoo.boxed).Count", 3, "IntList=System.Collections.Generic.List<int>")]
+	[TestCase("zoo.groups is Groups", true, "Groups=System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<int>>")]
+	public void Aliases(string code, object expected, params string[] usings) {
+		AssertResult(Evaluate(code, usings), expected);
+	}
+
+	[Test]
+	public void SuggestedUsings() {
+		Assert.That(TypeResolver.SuggestUsings("GameState", new string[0]), Is.EqualTo(new[] { TEST_GAME }));
+		Assert.That(TypeResolver.SuggestUsings("Player", new string[0]), Is.SupersetOf(new[] { TEST_GAME, OTHER_GAME }));
+		Assert.That(TypeResolver.SuggestUsings("Player", new[] { TEST_GAME, OTHER_GAME }), Is.EqualTo(new[] { "Player=UIConstraints.Core.Tests.TestGame.Player", "Player=UIConstraints.Core.Tests.OtherGame.Player" }));
+		Assert.That(TypeResolver.SuggestUsings("List`1", new string[0]), Does.Contain("System.Collections.Generic"));
+		Assert.That(TypeResolver.SuggestUsings("DoesNotExist", new string[0]), Is.Empty);
 	}
 
 	[Test]
 	public void ExampleSceneExpressions() {
+		Dictionary<string, Type> loopVariables = new Dictionary<string, Type>(VARIABLES) { ["item"] = typeof(KeyValuePair<Item, int>) };
 		context.SetLocal("item", new KeyValuePair<Item, int>(new Item("Apple"), 4));
-		AssertResult(Evaluate("item.Key.name"), "Apple");
-		AssertResult(Evaluate("item.Value"), 4);
+		AssertResult(Evaluate("item.Key.name", loopVariables), "Apple");
+		AssertResult(Evaluate("item.Value", loopVariables), 4);
 		Assert.That(Evaluate("player.inventory"), Is.SameAs(player.inventory));
 		AssertResult(Evaluate("player.name.ToUpper()"), "HERO");
 		Assert.That(Evaluate(""), Is.Null);
