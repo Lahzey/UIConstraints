@@ -4,7 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace UIConstraints.Core.Parsing {
-[AttributeUsage(AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)] // an expression can have multiple forms (e.g. with and without a trailing part)
 public class ExpressionPatternAttribute : Attribute {
 	private readonly object[] patternParts;
 

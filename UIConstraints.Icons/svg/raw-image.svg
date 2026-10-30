@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke-width="1">
+  <!--
+    UI Constraints icon: Raw Image Constraint
+    Shows: a framed checkerboard, standing for the pixels of any texture
+    Used by: Unity RawImageConstraint (RawImage, shows any texture), Godot TextureRect
+
+    Conventions (shared by all icons, see ../README.md):
+    - 16x16 grid, the size of component icons in Unity and Godot. 1px strokes are on half pixel coordinates (e.g. x="1.5"), so they cover whole pixels and stay sharp.
+    - The color says the category. This is Visual: what an element looks like:
+      fill #4C9BE8, outline #1F5F9E.
+    - The amber badge in the bottom right marks it as a UI Constraints component.
+  -->
+
+  <!-- the frame, like the one of the image icon -->
+  <rect x="1.5" y="2.5" width="13" height="10" rx="1" fill="#D6E9FB" stroke="#1F5F9E"/>
+  <!-- the dark squares of a 4x3 checkerboard of 3px squares, filling the inside of the frame (x 2 to 14, y 3 to 12) -->
+  <path d="M2 3h3v3h-3zM8 3h3v3h-3zM5 6h3v3h-3zM11 6h3v3h-3zM2 9h3v3h-3zM8 9h3v3h-3z" fill="#4C9BE8"/>
+
+  <!-- Badge (bottom right, drawn last so it is on top): an amber tile with '=' on it, meaning "set by expressions".
+       Every UI Constraints component has it, which tells them apart from the built-in component they control (e.g. Image Constraint vs. Image). -->
+  <rect x="9.5" y="9.5" width="6" height="6" rx="1.5" fill="#F2B134" stroke="#8A5A00"/>
+  <!-- the two bars of the '=' -->
+  <path d="M11 11.5h3M11 13.5h3" stroke="#4A3000" stroke-linecap="round"/>
+</svg>

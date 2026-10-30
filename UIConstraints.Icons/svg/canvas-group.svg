@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke-width="1">
+  <!--
+    UI Constraints icon: Canvas Group Constraint
+    Shows: three stacked layers fading out, as a canvas group sets the transparency of a whole group
+    Used by: Unity CanvasGroupConstraint (alpha and interactivity of a group), Godot modulate of a parent Control
+
+    Conventions (shared by all icons, see ../README.md):
+    - 16x16 grid, the size of component icons in Unity and Godot. 1px strokes are on half pixel coordinates (e.g. x="1.5"), so they cover whole pixels and stay sharp.
+    - The color says the category. This is Visual: what an element looks like:
+      fill #4C9BE8, outline #1F5F9E.
+    - The amber badge in the bottom right marks it as a UI Constraints component.
+  -->
+
+  <!-- the back layer, the most transparent -->
+  <rect x="5.5" y="1.5" width="9" height="7" rx="1" fill="#4C9BE8" fill-opacity="0.35"/>
+  <!-- the middle layer -->
+  <rect x="3.5" y="3.5" width="9" height="7" rx="1" fill="#4C9BE8" fill-opacity="0.65"/>
+  <!-- the front layer, opaque and outlined -->
+  <rect x="1.5" y="5.5" width="9" height="7" rx="1" fill="#4C9BE8" stroke="#1F5F9E"/>
+
+  <!-- Badge (bottom right, drawn last so it is on top): an amber tile with '=' on it, meaning "set by expressions".
+       Every UI Constraints component has it, which tells them apart from the built-in component they control (e.g. Image Constraint vs. Image). -->
+  <rect x="9.5" y="9.5" width="6" height="6" rx="1.5" fill="#F2B134" stroke="#8A5A00"/>
+  <!-- the two bars of the '=' -->
+  <path d="M11 11.5h3M11 13.5h3" stroke="#4A3000" stroke-linecap="round"/>
+</svg>

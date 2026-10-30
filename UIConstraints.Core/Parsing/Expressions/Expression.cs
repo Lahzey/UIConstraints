@@ -83,6 +83,12 @@ public abstract class Expression : ParsedElement {
 		return false;
 	}
 
+	// whether the value of the expression is a nullable value type (e.g. int?)
+	internal static bool IsNullable(Expression expression) {
+		Type type = expression.GetExpectedType();
+		return type != null && Nullable.GetUnderlyingType(type) != null;
+	}
+
 	// what is wrong with using this expression as a value, null if nothing is
 	[CanBeNull]
 	internal static string DescribeNonValue(Expression expression) {
@@ -260,7 +266,7 @@ public class VariableExpression : NameExpression {
 	private void ResolveAsMember(Type type, bool isStaticAccess) {
 		isStatic = isStaticAccess;
 		if (isMethodName) {
-			if (MemberResolver.HasMethod(type, VariableName, isStaticAccess)) kind = VariableKind.Method;
+			if (MemberResolver.HasMethod(type, VariableName, isStaticAccess, genericArity)) kind = VariableKind.Method;
 			return;
 		}
 
@@ -310,7 +316,8 @@ public class VariableExpression : NameExpression {
 			bool staticAccess = ownerKind == OwnerKind.Type;
 			string typeName = TypeNames.GetDisplayName(ownerType);
 			if (isMethodName) {
-				if (!MemberResolver.HasMethod(ownerType, VariableName, !staticAccess)) message = $"'{typeName}' does not contain a method named '{VariableName}'";
+				if (!MemberResolver.HasMethod(ownerType, VariableName, !staticAccess, genericArity))
+					message = genericArity > 0 ? $"'{typeName}' does not contain a generic method named '{VariableName}' with {genericArity} type argument{(genericArity == 1 ? "" : "s")}" : $"'{typeName}' does not contain a method named '{VariableName}'";
 				else if (staticAccess) message = $"'{VariableName}' is not static, it can only be called on an instance of {typeName}";
 				else message = $"'{VariableName}' is static, call it on the type '{typeName}' instead";
 			}
@@ -391,12 +398,14 @@ public class StringExpression : Expression {
 [ExpressionPattern(typeof(NumberToken))]
 [PatternPriority(999)]
 public class NumberExpression : Expression {
+	public object Value => ((NumberToken)args[0]).Value;
+
 	public override object Evaluate(DataContext context) {
-		return ((NumberToken)args[0]).Value;
+		return Value;
 	}
 
 	public override Type GetExpectedType() {
-		return ((NumberToken)args[0]).Value.GetType();
+		return Value.GetType();
 	}
 }
 
@@ -521,44 +530,62 @@ public class FieldAccessExpression : NameExpression {
 		object target = null;
 		if (!Field.IsStatic) {
 			target = Object.Evaluate(context);
-			if (target == null) throw new EvaluationException($"Trying to access '{Field.VariableName}' of null", this);
+			if (target == null && !IsNullable(Object)) throw new EvaluationException($"Trying to access '{Field.VariableName}' of null", this); // nullable values have members for null (e.g. HasValue)
 		}
 
 		return MemberResolver.GetValue(Field.Member, target, this);
 	}
 }
 
-// Methods are always called on something (e.g. player.GetHealth() or Mathf.Max(a, b)), as there is no implicit 'this' to call them on otherwise
+/**
+ * Methods are always called on something (e.g. player.GetHealth() or Mathf.Max(a, b)), as there is no implicit 'this' to call them on otherwise.
+ * Generic methods are called with type arguments (the second pattern, e.g. gameObject.GetComponent<Image>(), where the name with the type arguments is a GenericTypeExpression),
+ * or without them if they can be inferred from the arguments (e.g. Enumerable.Max(numbers)).
+ */
 [ExpressionPattern(typeof(FieldAccessExpression), @" \((?: ", typeof(Expression), @"(?: , ", typeof(Expression), @")*)? \)", AutoSpace = false)]
+[ExpressionPattern(typeof(GenericTypeExpression), @" \((?: ", typeof(Expression), @"(?: , ", typeof(Expression), @")*)? \)", AutoSpace = false)]
 [PatternPriority(2)]
 public class FunctionCallExpression : Expression {
 	[CanBeNull] private MethodCall resolvedCall;
 	[CanBeNull] private string resolveError;
+	[CanBeNull] private GenericTypeExpression genericMethod; // the name with the type arguments, for calls with explicit type arguments
 
-	public FieldAccessExpression Target => (FieldAccessExpression)args[0];
-	public string MethodName => Target.Field.VariableName;
+	// null if a generic method is not called on anything (e.g. Max<int>(a, b)), which Validate reports
+	[CanBeNull] public FieldAccessExpression Target { get; private set; }
+	public string MethodName => Target?.Field.VariableName ?? genericMethod.GenericName.Name;
 	public Expression[] Arguments { get; private set; }
 
 	public override void Prepare(object[] args, ParseContext context) {
 		base.Prepare(args, context);
 		Arguments = args.Skip(1).Cast<Expression>().ToArray();
+		genericMethod = args[0] as GenericTypeExpression;
+		genericMethod?.MarkAsMethodName();
+		Target = genericMethod != null ? genericMethod.GenericName as FieldAccessExpression : (FieldAccessExpression)args[0];
+		if (Target == null) return; // reported by Validate
 		Target.MarkAsMethodGroup();
 		if (Target.Field.Kind != VariableKind.Method) return; // reported by Validate
 
-		// the overload can only be determined if all arguments are valid values
+		// the overload can only be determined if all arguments and type arguments are valid
 		if (Arguments.Any(a => a.GetExpectedType() == null || DescribeNonValue(a) != null)) return;
+		Type[] typeArguments = genericMethod?.TypeArguments.Select(t => t.GetReferencedType()).ToArray();
+		if (typeArguments != null && typeArguments.Any(t => t == null)) return;
 		Type staticType = Target.Object.GetReferencedType();
 		Type ownerType = staticType ?? Target.Object.GetExpectedType();
-		resolvedCall = MemberResolver.ResolveMethod(ownerType, MethodName, staticType != null, Arguments.Select(a => a.GetExpectedType()).ToArray(), out resolveError);
+		resolvedCall = MemberResolver.ResolveMethod(ownerType, MethodName, staticType != null, Arguments.Select(a => a.GetExpectedType()).ToArray(), out resolveError, typeArguments);
 	}
 
 	public override Type GetExpectedType() {
-		return resolvedCall?.method.ReturnType;
+		return resolvedCall?.ReturnType;
 	}
 
 	public override void Validate(ParseResult parseResult) {
 		bool argumentsValid = true;
 		foreach (Expression argument in Arguments) argumentsValid &= CheckValue(argument, parseResult);
+
+		if (Target == null) {
+			AddError(parseResult, $"Methods have to be called on something, e.g. Type.{MethodName}<...>() or value.{MethodName}<...>()");
+			return;
+		}
 
 		if (Target.Field.HasInvalidOwner) {
 			CheckValue(Target.Object, parseResult); // reports void, other errors were reported for the object itself
@@ -579,7 +606,7 @@ public class FunctionCallExpression : Expression {
 		object target = null;
 		if (!resolvedCall.method.IsStatic) {
 			target = Target.Object.Evaluate(context);
-			if (target == null) throw new EvaluationException($"Trying to call '{MethodName}' on null", this);
+			if (target == null && !IsNullable(Target.Object)) throw new EvaluationException($"Trying to call '{MethodName}' on null", this); // nullable values have methods for null (e.g. GetValueOrDefault())
 		}
 
 		object[] values = new object[Arguments.Length];
@@ -587,20 +614,4 @@ public class FunctionCallExpression : Expression {
 		return MemberResolver.Invoke(resolvedCall, target, values, this);
 	}
 }
-
-// probably should not support field assignment, but leaving this here if needed in the future
-// [ValuePattern(typeof(FieldAccessExpression), @"=", typeof(Expression)), PatternPriority(-2)]
-// public class FieldAssignmentValue : Expression
-// {
-//     public override object Evaluate(DataContext context)
-//     {
-//         object ObjectValue = ((FieldAccessExpression)args[0]).Object.Evaluate(context);
-//         string FieldName = ((FieldAccessExpression)args[0]).FieldName;
-//         object Expression = ((Expression)args[1]).Evaluate(context);
-//         ObjectValue.GetType().GetField(FieldName).SetValue(ObjectValue, Expression);
-//         return Expression;
-//     }
-//
-//     public Expression Expression => (Expression) args[1];
-// }
 }

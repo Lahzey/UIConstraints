@@ -1,33 +1,27 @@
-﻿using UIConstraints.Core.Data;
-using UIConstraints.Core.Parsing;
-using UIConstraints.Core.Parsing.Expressions;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace UIConstraints.Unity.Constraints {
-[RequireComponent(typeof(TextMeshProUGUI))]
-public class TextConstraint : UIConstraint {
-	[SerializeField] private CodeInput textConstraint;
-	private TextMeshProUGUI text;
+// the text and look of a TextMeshPro text (UI or 3D), the text can be any value (its ToString is shown)
+[AddComponentMenu("UI Constraints/Text Constraint")]
+[RequireComponent(typeof(TMP_Text))]
+[Icon("Packages/com.lahzey.uiconstraints/Editor/Icons/text.png")]
+public class TextConstraint : ComponentConstraint<TMP_Text> {
+	[SerializeField, FormerlySerializedAs("textConstraint")] private CodeInput text;
+	[SerializeField, ResultType(typeof(Color))] private CodeInput color;
+	[SerializeField, ResultType(typeof(float))] private CodeInput fontSize;
+	[SerializeField, ResultType(typeof(FontStyles))] private CodeInput fontStyle;
+	[SerializeField, ResultType(typeof(TextAlignmentOptions))] private CodeInput alignment;
+	[SerializeField, ResultType(typeof(int)), Tooltip("How many characters are visible, e.g. for a typewriter effect")] private CodeInput maxVisibleCharacters;
 
-	private Expression textExpression;
-
-	protected override void Awake() {
-		base.Awake();
-		text = GetComponent<TextMeshProUGUI>();
-
-		ParseResult parseResult = textConstraint.Result;
-		textExpression = parseResult is { Success: true } ? parseResult.Expression : null;
-		if (textExpression == null) Debug.LogError("Failed to parse text expression '" + textConstraint.input + "', defaulting to empty string.", this);
-	}
-
-	public override void Render(DataContext context) {
-		try {
-			text.text = (textExpression?.Evaluate(context) ?? "") + ""; // using plus "" to convert to string because im lazy
-		}
-		catch (EvaluationException e) {
-			Debug.LogException(e, this);
-		}
+	protected override void Bind() {
+		BindProperty<string>(nameof(text), t => t.text, (t, value) => t.text = value ?? "");
+		BindProperty<Color>(nameof(color), t => t.color, (t, value) => t.color = value);
+		BindProperty<float>(nameof(fontSize), t => t.fontSize, (t, value) => t.fontSize = value);
+		BindProperty<FontStyles>(nameof(fontStyle), t => t.fontStyle, (t, value) => t.fontStyle = value);
+		BindProperty<TextAlignmentOptions>(nameof(alignment), t => t.alignment, (t, value) => t.alignment = value);
+		BindProperty<int>(nameof(maxVisibleCharacters), t => t.maxVisibleCharacters, (t, value) => t.maxVisibleCharacters = value);
 	}
 }
 }

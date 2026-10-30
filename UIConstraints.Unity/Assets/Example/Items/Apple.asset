@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f11a15dbf68ec2e42a04509e59c5abeb, type: 3}
   m_Name: Apple
   m_EditorClassIdentifier: 
-  name: Apple
+  displayName: Apple
   sprite: {fileID: 21300000, guid: a3ad6381c8e2afc45a43f899571c2bf9, type: 3}
+  price: 8
+  description: Crunchy and sweet, keeps the doctor away.

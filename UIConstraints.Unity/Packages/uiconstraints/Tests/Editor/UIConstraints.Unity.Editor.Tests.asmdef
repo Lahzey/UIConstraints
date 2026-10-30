@@ -1,0 +1,27 @@
+{
+    "name": "UIConstraints.Unity.Editor.Tests",
+    "rootNamespace": "UIConstraints.Unity.Tests",
+    "references": [
+        "UIConstraints.Unity",
+        "UIConstraints.Unity.Editor",
+        "UIConstraints.Unity.Tests",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "UIConstraints.Core.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

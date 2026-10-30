@@ -146,6 +146,85 @@ public static class Overloads {
 		return a && b;
 	}
 }
+
+// a struct with operators, like Unity's Vector2
+public struct Vec {
+	public float x;
+	public float y;
+
+	public Vec(float x, float y) {
+		this.x = x;
+		this.y = y;
+	}
+
+	public static Vec operator +(Vec a, Vec b) {
+		return new Vec(a.x + b.x, a.y + b.y);
+	}
+
+	public static Vec operator *(Vec a, float factor) {
+		return new Vec(a.x * factor, a.y * factor);
+	}
+
+	public static Vec operator -(Vec a) {
+		return new Vec(-a.x, -a.y);
+	}
+
+	public override string ToString() {
+		return $"({x}, {y})";
+	}
+}
+
+// generic methods whose type arguments are inferred
+public static class Generics {
+	public static T Default<T>() {
+		return default;
+	}
+
+	public static List<T> ListOf<T>(params T[] items) {
+		return new List<T>(items);
+	}
+
+	public static T Pick<T>(T first, T second) {
+		return second;
+	}
+
+	public static T First<T>(IEnumerable<T> items) {
+		foreach (T item in items) return item;
+		return default;
+	}
+}
+
+// state that actions change
+public class Counter {
+	public static int total;
+
+	public int count;
+	public byte small;
+	public readonly int fixedValue = 1;
+	public string text = "";
+	public Vec position;
+	public List<int> list = new List<int> { 1, 2, 3 };
+	public int[] array = { 1, 2, 3 };
+	public int[,] grid = new int[2, 3];
+	public Dictionary<string, int> scores = new Dictionary<string, int> { { "a", 1 } };
+	public IReadOnlyList<int> readOnlyList = new List<int> { 1 };
+
+	public string Label { get; private set; } = "label";
+	public object content = new Item("boxed");
+
+	// like GetComponent<T>(), a generic method that is called with an explicit type argument
+	public T Get<T>() where T : class {
+		return content as T;
+	}
+
+	public void Increment() {
+		count++;
+	}
+
+	public void Add(int amount) {
+		count += amount;
+	}
+}
 }
 
 // a second type named Player, to test ambiguous names and aliases

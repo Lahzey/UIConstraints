@@ -2,10 +2,14 @@
 using UIConstraints.Core.Parsing;
 using UIConstraints.Core.Parsing.Expressions;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace UIConstraints.Unity.Constraints {
+// shows the game object only while the condition is true (unlike other constraints, this is also rendered while the game object is inactive, so it can activate it again)
+[AddComponentMenu("UI Constraints/Show Constraint")]
+[Icon("Packages/com.lahzey.uiconstraints/Editor/Icons/show.png")]
 public class ShowConstraint : UIConstraint {
-	[SerializeField] private CodeInput conditionConstraint;
+	[SerializeField, ResultType(typeof(bool)), FormerlySerializedAs("conditionConstraint")] private CodeInput condition;
 	[SerializeField] private bool disableAtRuntime; // since this constraint works even if disabled, we need another way of disabling it
 
 	private Expression conditionExpression;
@@ -14,9 +18,7 @@ public class ShowConstraint : UIConstraint {
 	protected override void Awake() {
 		base.Awake();
 
-		ParseResult parseResult = conditionConstraint.Result;
-		conditionExpression = parseResult is { Success: true } ? parseResult.Expression : null;
-		if (conditionExpression == null) Debug.LogError("Failed to parse condition expression '" + conditionConstraint.input + "', defaulting to true.", this);
+		conditionExpression = ParseField(nameof(condition));
 	}
 
 	public override void Render(DataContext context) {

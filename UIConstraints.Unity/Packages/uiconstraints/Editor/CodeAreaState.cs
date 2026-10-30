@@ -26,12 +26,29 @@ public class CodeAreaState {
 		set {
 			contentStyle = value;
 			LineHeight = ContentStyle.font.lineHeight;
-			CharWidth = ContentStyle.font.characterInfo[0].advance; // doesn't matter which character, all consolas chars are the same width
+			CharWidth = MeasureCharWidth(value);
 		}
 	}
 
 	public int LineHeight { get; private set; }
-	public int CharWidth { get; private set; }
+	public float CharWidth { get; private set; }
+
+	private static readonly Dictionary<(Font, int), float> CHAR_WIDTHS = new Dictionary<(Font, int), float>();
+
+	/**
+	 * The width of a character in GUI points, as the style draws it (all characters of a monospace font are equally wide).
+	 * Measured over many characters, as the width is not a whole number: the advance of the characters in the font is rounded (e.g. 7 for Consolas at size 12, which is drawn 6.6 wide),
+	 * which put the cursor further and further right of the text the longer the line was.
+	 */
+	private static float MeasureCharWidth(GUIStyle style) {
+		(Font, int) key = (style.font, style.fontSize);
+		if (CHAR_WIDTHS.TryGetValue(key, out float width)) return width;
+
+		const int count = 100;
+		width = style.CalcSize(new GUIContent(new string('m', count))).x / count;
+		CHAR_WIDTHS[key] = width;
+		return width;
+	}
 	public string[] Lines { get; private set; }
 
 	public CodeAreaTheme Theme { get; set; }
@@ -52,10 +69,10 @@ public class CodeAreaState {
 		foreach (string line in lines) lineLengths.Add(line.Length);
 	}
 
-	public void CreateAutoComplete(string input, ParseContext context, bool explicitRequest) {
+	public void CreateAutoComplete(string input, ParseContext context, bool explicitRequest, ParseTarget target) {
 		HideAutoComplete();
 
-		autoCompleteOptions.AddRange(AutoComplete.GetOptions(input, SelectionEnd, context, explicitRequest, out int replaceStart));
+		autoCompleteOptions.AddRange(AutoComplete.GetOptions(input, SelectionEnd, context, explicitRequest, out int replaceStart, target));
 		AutoCompleteReplaceStart = replaceStart;
 		ShowAutoComplete = autoCompleteOptions.Count > 0;
 	}

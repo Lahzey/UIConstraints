@@ -1,59 +1,34 @@
-﻿using System;
-using UIConstraints.Core.Data;
-using UIConstraints.Core.Parsing;
-using UIConstraints.Core.Parsing.Expressions;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace UIConstraints.Unity.Constraints {
+/**
+ * The layout of a UI element. The anchors are separate numbers, as they are often set on their own, e.g. a bar that fills a part of its parent with anchorMaxX = health / maxHealth.
+ */
+[AddComponentMenu("UI Constraints/Rect Transform Constraint")]
 [RequireComponent(typeof(RectTransform))]
-public class RectTransformConstraint : UIConstraint {
-	// anchor constraints
-	[SerializeField] private CodeInput minXConstraint;
-	[SerializeField] private CodeInput maxXConstraint;
-	[SerializeField] private CodeInput minYConstraint;
-	[SerializeField] private CodeInput maxYConstraint;
+[Icon("Packages/com.lahzey.uiconstraints/Editor/Icons/rect-transform.png")]
+public class RectTransformConstraint : ComponentConstraint<RectTransform> {
+	[SerializeField, ResultType(typeof(float)), FormerlySerializedAs("minXConstraint")] private CodeInput anchorMinX;
+	[SerializeField, ResultType(typeof(float)), FormerlySerializedAs("maxXConstraint")] private CodeInput anchorMaxX;
+	[SerializeField, ResultType(typeof(float)), FormerlySerializedAs("minYConstraint")] private CodeInput anchorMinY;
+	[SerializeField, ResultType(typeof(float)), FormerlySerializedAs("maxYConstraint")] private CodeInput anchorMaxY;
+	[SerializeField, ResultType(typeof(Vector2)), Tooltip("The position relative to the anchors")] private CodeInput anchoredPosition;
+	[SerializeField, ResultType(typeof(Vector2)), Tooltip("The size relative to the anchors (the size itself if both anchors are at the same point)")] private CodeInput sizeDelta;
+	[SerializeField, ResultType(typeof(Vector2))] private CodeInput pivot;
+	[SerializeField, ResultType(typeof(float)), Tooltip("The rotation around the z axis in degrees")] private CodeInput rotation;
+	[SerializeField, ResultType(typeof(Vector3))] private CodeInput scale;
 
-	private Expression[] expressions;
-	private RectTransform rectTransform;
-
-	private CodeInput[] Constraints => new[] { minXConstraint, maxXConstraint, minYConstraint, maxYConstraint };
-
-	protected override void Awake() {
-		base.Awake();
-		rectTransform = GetComponent<RectTransform>();
-
-		CodeInput[] constraints = this.Constraints;
-		expressions = new Expression[constraints.Length];
-		for (int i = 0; i < constraints.Length; i++) {
-			CodeInput constraint = constraints[i];
-			if (constraint.input.Length == 0) continue;
-			ParseResult parseResult = constraint.Result;
-			if (parseResult is not { Success: true }) Debug.LogError("Failed to parse RectTransformConstraint expression '" + constraint.input + "'.", this);
-			else expressions[i] = parseResult.Expression;
-		}
-	}
-
-	// Update is called once per frame
-	public override void Render(DataContext context) {
-		// Values here must be in the same order as defined by the constraints property. Sorry, I know its not clean :(
-		float[] values = new float[4];
-		values[0] = rectTransform.anchorMin.x;
-		values[1] = rectTransform.anchorMax.x;
-		values[2] = rectTransform.anchorMin.y;
-		values[3] = rectTransform.anchorMax.y;
-
-
-		for (int i = 0; i < expressions.Length; i++) {
-			Expression expression = expressions[i];
-			if (expression != null) {
-				object value = expression.Evaluate(context);
-				if (value is short or int or long or float or double) values[i] = Convert.ToSingle(value); // casting would only work for boxed floats
-				else Debug.LogError("RectTransformConstraint expression '" + Constraints[i].input + "' does not evaluate to a number. Result: " + value);
-			}
-		}
-
-		rectTransform.anchorMin = new Vector2(values[0], values[2]);
-		rectTransform.anchorMax = new Vector2(values[1], values[3]);
+	protected override void Bind() {
+		BindProperty<float>(nameof(anchorMinX), r => r.anchorMin.x, (r, value) => r.anchorMin = new Vector2(value, r.anchorMin.y));
+		BindProperty<float>(nameof(anchorMaxX), r => r.anchorMax.x, (r, value) => r.anchorMax = new Vector2(value, r.anchorMax.y));
+		BindProperty<float>(nameof(anchorMinY), r => r.anchorMin.y, (r, value) => r.anchorMin = new Vector2(r.anchorMin.x, value));
+		BindProperty<float>(nameof(anchorMaxY), r => r.anchorMax.y, (r, value) => r.anchorMax = new Vector2(r.anchorMax.x, value));
+		BindProperty<Vector2>(nameof(anchoredPosition), r => r.anchoredPosition, (r, value) => r.anchoredPosition = value);
+		BindProperty<Vector2>(nameof(sizeDelta), r => r.sizeDelta, (r, value) => r.sizeDelta = value);
+		BindProperty<Vector2>(nameof(pivot), r => r.pivot, (r, value) => r.pivot = value);
+		BindProperty<float>(nameof(rotation), r => r.localEulerAngles.z, (r, value) => r.localEulerAngles = new Vector3(r.localEulerAngles.x, r.localEulerAngles.y, value));
+		BindProperty<Vector3>(nameof(scale), r => r.localScale, (r, value) => r.localScale = value);
 	}
 }
 }

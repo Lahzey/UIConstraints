@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke-width="1">
+  <!--
+    UI Constraints icon: Layout Group Constraint
+    Shows: three bars stacked by a vertical layout (the last is shorter to make room for the badge)
+    Used by: Unity LayoutGroupConstraint (horizontal and vertical layout groups), Godot HBoxContainer / VBoxContainer
+
+    Conventions (shared by all icons, see ../README.md):
+    - 16x16 grid, the size of component icons in Unity and Godot. 1px strokes are on half pixel coordinates (e.g. x="1.5"), so they cover whole pixels and stay sharp.
+    - The color says the category. This is Layout: where an element is and how big it is:
+      fill #5DBB63, outline #2E7D32.
+    - The amber badge in the bottom right marks it as a UI Constraints component.
+  -->
+
+  <!-- the first two bars, full width -->
+  <rect x="1.5" y="1.5" width="13" height="3" rx="1" fill="#5DBB63" stroke="#2E7D32"/>
+  <rect x="1.5" y="5.5" width="13" height="3" rx="1" fill="#5DBB63" stroke="#2E7D32"/>
+  <!-- the third bar -->
+  <rect x="1.5" y="9.5" width="7" height="3" rx="1" fill="#5DBB63" stroke="#2E7D32"/>
+
+  <!-- Badge (bottom right, drawn last so it is on top): an amber tile with '=' on it, meaning "set by expressions".
+       Every UI Constraints component has it, which tells them apart from the built-in component they control (e.g. Image Constraint vs. Image). -->
+  <rect x="9.5" y="9.5" width="6" height="6" rx="1.5" fill="#F2B134" stroke="#8A5A00"/>
+  <!-- the two bars of the '=' -->
+  <path d="M11 11.5h3M11 13.5h3" stroke="#4A3000" stroke-linecap="round"/>
+</svg>

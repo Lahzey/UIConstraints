@@ -38,6 +38,10 @@ public static class TypeRules {
 		return NUMERIC_TYPES.Contains(type);
 	}
 
+	public static bool IsIntegral(Type type) {
+		return IsNumeric(type) && type != typeof(float) && type != typeof(double) && type != typeof(decimal);
+	}
+
 	public static bool CanBeNull(Type type) {
 		return !type.IsValueType || Nullable.GetUnderlyingType(type) != null;
 	}
@@ -90,6 +94,18 @@ public static class TypeRules {
 		if (aToB && !bToA) return b;
 		if (bToA && !aToB) return a;
 		return null;
+	}
+
+	// the type of the elements a foreach loop over a value of the given type would get, e.g. KeyValuePair<Item, int> for Dictionary<Item, int> (object for non-generic collections)
+	public static Type GetElementType(Type enumerableType) {
+		if (enumerableType.IsArray) return enumerableType.GetElementType();
+		if (enumerableType == typeof(string)) return typeof(char);
+
+		IEnumerable<Type> candidates = enumerableType.IsInterface ? enumerableType.GetInterfaces().Prepend(enumerableType) : enumerableType.GetInterfaces();
+		foreach (Type candidate in candidates)
+			if (candidate.IsGenericType && candidate.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+				return candidate.GetGenericArguments()[0];
+		return typeof(object);
 	}
 
 	private static bool IsNumericOrEnum(Type type) {

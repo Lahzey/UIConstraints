@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke-width="1">
+  <!--
+    UI Constraints icon: Image Constraint
+    Shows: a framed picture of mountains under a sun
+    Used by: Unity ImageConstraint (Image, needs a sprite), Godot TextureRect
+
+    Conventions (shared by all icons, see ../README.md):
+    - 16x16 grid, the size of component icons in Unity and Godot. 1px strokes are on half pixel coordinates (e.g. x="1.5"), so they cover whole pixels and stay sharp.
+    - The color says the category. This is Visual: what an element looks like:
+      fill #4C9BE8, outline #1F5F9E.
+    - The amber badge in the bottom right marks it as a UI Constraints component.
+  -->
+
+  <!-- the frame, with a light version of the category color as the sky -->
+  <rect x="1.5" y="2.5" width="13" height="10" rx="1" fill="#D6E9FB" stroke="#1F5F9E"/>
+  <!-- two mountains, standing on the bottom edge of the frame -->
+  <path d="M2 12l4-5 3 3 2-2 3 4z" fill="#4C9BE8"/>
+  <!-- the sun in the top right of the sky -->
+  <circle cx="10.5" cy="5.5" r="1.5" fill="#1F5F9E"/>
+
+  <!-- Badge (bottom right, drawn last so it is on top): an amber tile with '=' on it, meaning "set by expressions".
+       Every UI Constraints component has it, which tells them apart from the built-in component they control (e.g. Image Constraint vs. Image). -->
+  <rect x="9.5" y="9.5" width="6" height="6" rx="1.5" fill="#F2B134" stroke="#8A5A00"/>
+  <!-- the two bars of the '=' -->
+  <path d="M11 11.5h3M11 13.5h3" stroke="#4A3000" stroke-linecap="round"/>
+</svg>

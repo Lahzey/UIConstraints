@@ -1,12 +1,17 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using UIConstraints.Core.Data;
 using UnityEngine;
 
 namespace UIConstraints.Unity {
+[Icon("Packages/com.lahzey.uiconstraints/Editor/Icons/render-manager.png")]
 public class RenderManager : MonoBehaviour {
 	private static RenderManager defaultInternal;
 	public static RenderManager Default => defaultInternal ? defaultInternal : InitDefaultRenderManager(); // apparently ?? does not use the unity null override, so we have to use ? : instead
+
+	// the default render manager if it exists, without creating it. Used while destroying, as a render manager created then would be left in the scene (e.g. when it is destroyed before the constraints while the scene is closed)
+	[CanBeNull] public static RenderManager DefaultIfExists => defaultInternal ? defaultInternal : null;
 
 	[SerializeField] private float renderInterval = 0.1f;
 
@@ -70,13 +75,17 @@ public class RenderManager : MonoBehaviour {
 	public void RemoveUINode(UINode uiNode) {
 		uiNodeMapping.Remove(uiNode.instanceId);
 
+		// a root node, its children become root nodes (checked first, as the hierarchy path of a root node starts with itself)
+		if (rootUINodes.Remove(uiNode)) {
+			rootUINodes.AddRange(uiNode.Children);
+			return;
+		}
+
 		foreach (UINode rootUINode in rootUINodes)
 			if (uiNode.hierarchyPath.StartsWith(rootUINode.hierarchyPath)) {
 				rootUINode.RemoveChild(uiNode);
 				return;
 			}
-
-		rootUINodes.Remove(uiNode);
 	}
 }
 }

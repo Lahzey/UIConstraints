@@ -54,6 +54,11 @@ public class CompletionTests {
 	[TestCase("1 + GameState.player.weapon.|")]
 	[TestCase("item.|")] // variables have a declared type
 	[TestCase("((Item)player.weapon).|")]
+	[TestCase("new Item(\"a\").|")]
+	[TestCase("Generics.Default<Item>().|")] // generic method calls
+	[TestCase("[player.weapon, item][0].|")] // elements of collections
+	[TestCase("player.Add(1, 2); player.weapon.|")] // statements of actions
+	[TestCase("zoo.animals[1 + 1].Bark().Length + player.weapon.|")]
 	public void MembersOfChains(string input) {
 		Assert.That(GetLabels(input, false, TEST_GAME), Does.Contain("name"));
 	}
@@ -161,6 +166,17 @@ public class CompletionTests {
 	[Test]
 	public void Keywords() {
 		Assert.That(GetLabels("tr|"), Does.Contain("true"));
+	}
+
+	[Test]
+	public void TypesAfterNew() {
+		Assert.That(GetLabels("new It|", false, TEST_GAME), Does.Contain("Item"));
+	}
+
+	[Test]
+	public void IndexedReceivers() {
+		Assert.That(GetLabels("zoo.animals[0].|", false, TEST_GAME), Does.Contain("Name"));
+		Assert.That(GetLabels("zoo.animals[player.level - 3].|", false, TEST_GAME), Does.Contain("Name"));
 	}
 }
 }

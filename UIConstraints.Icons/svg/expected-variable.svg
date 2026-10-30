@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke-width="1">
+  <!--
+    UI Constraints icon: Expected Variable
+    Shows: the x of the variable icon on a dashed, empty tile: a variable that a parent has to provide
+    Used by: Unity ExpectedVariable (declares a variable a parent provides, e.g. in prefabs), Godot the equivalent node
+
+    Conventions (shared by all icons, see ../README.md):
+    - 16x16 grid, the size of component icons in Unity and Godot. 1px strokes are on half pixel coordinates (e.g. x="1.5"), so they cover whole pixels and stay sharp.
+    - The color says the category. This is Logic: variables, repetition and visibility:
+      fill #3FB8AF, outline #1D6F69.
+    - The amber badge in the bottom right marks it as a UI Constraints component.
+  -->
+
+  <!-- the tile, only a dashed outline (in the fill color to be visible on dark backgrounds), as the value comes from somewhere else -->
+  <rect x="1.5" y="1.5" width="11" height="11" rx="2" fill="#FFFFFF" fill-opacity="0.15" stroke="#3FB8AF" stroke-dasharray="2 1.5"/>
+  <!-- the x, in the category color instead of white, as the tile is empty -->
+  <path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="#3FB8AF" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Badge (bottom right, drawn last so it is on top): an amber tile with '=' on it, meaning "set by expressions".
+       Every UI Constraints component has it, which tells them apart from the built-in component they control (e.g. Image Constraint vs. Image). -->
+  <rect x="9.5" y="9.5" width="6" height="6" rx="1.5" fill="#F2B134" stroke="#8A5A00"/>
+  <!-- the two bars of the '=' -->
+  <path d="M11 11.5h3M11 13.5h3" stroke="#4A3000" stroke-linecap="round"/>
+</svg>

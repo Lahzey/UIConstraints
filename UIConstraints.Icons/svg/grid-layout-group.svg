@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke-width="1">
+  <!--
+    UI Constraints icon: Grid Layout Group Constraint
+    Shows: a 2x2 grid of cells (the badge takes the place of the fourth)
+    Used by: Unity GridLayoutGroupConstraint, Godot GridContainer
+
+    Conventions (shared by all icons, see ../README.md):
+    - 16x16 grid, the size of component icons in Unity and Godot. 1px strokes are on half pixel coordinates (e.g. x="1.5"), so they cover whole pixels and stay sharp.
+    - The color says the category. This is Layout: where an element is and how big it is:
+      fill #5DBB63, outline #2E7D32.
+    - The amber badge in the bottom right marks it as a UI Constraints component.
+  -->
+
+  <!-- the cells, 6px each with a 1px gap: top left, top right, bottom left -->
+  <rect x="1.5" y="1.5" width="6" height="6" rx="1" fill="#5DBB63" stroke="#2E7D32"/>
+  <rect x="8.5" y="1.5" width="6" height="6" rx="1" fill="#5DBB63" stroke="#2E7D32"/>
+  <rect x="1.5" y="8.5" width="6" height="6" rx="1" fill="#5DBB63" stroke="#2E7D32"/>
+
+  <!-- Badge (bottom right, drawn last so it is on top): an amber tile with '=' on it, meaning "set by expressions".
+       Every UI Constraints component has it, which tells them apart from the built-in component they control (e.g. Image Constraint vs. Image). -->
+  <rect x="9.5" y="9.5" width="6" height="6" rx="1.5" fill="#F2B134" stroke="#8A5A00"/>
+  <!-- the two bars of the '=' -->
+  <path d="M11 11.5h3M11 13.5h3" stroke="#4A3000" stroke-linecap="round"/>
+</svg>

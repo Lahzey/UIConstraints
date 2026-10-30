@@ -4,6 +4,7 @@ using System.Linq;
 using UIConstraints.Core.Completion;
 using UIConstraints.Core.Parsing;
 using UIConstraints.Core.Parsing.Expressions;
+using JetBrains.Annotations;
 using UnityEditor;
 using UnityEngine;
 
@@ -18,6 +19,14 @@ public class CodeArea {
 
 	private static readonly GUIStyle CODE_SEGMENT_STYLE;
 
+	/**
+	 * Inspectors that call DrawPendingSuggestions after everything else set this while drawing, so suggestions can be drawn below the code area:
+	 * drawn with the code area, the controls after it would be drawn over them. Without it, the suggestions are drawn right away.
+	 */
+	public static bool deferSuggestions;
+	[CanBeNull] private static Action<Rect> pendingSuggestions;
+	private static Rect pendingSuggestionsScreenBounds;
+
 	static CodeArea() {
 		CODE_SEGMENT_STYLE = new GUIStyle(GUI.skin.label);
 		CODE_SEGMENT_STYLE.margin = new RectOffset(0, 0, 0, 0);
@@ -26,8 +35,13 @@ public class CodeArea {
 		CODE_SEGMENT_STYLE.alignment = TextAnchor.UpperLeft;
 	}
 
-	// usings may be modified, as accepting an auto complete option can add the namespace it requires
-	public static string ScrolledArea(Rect position, string input, List<string> usings, ParseResult parseResult, GUIStyle style, out Vector2 preferredSize) {
+	/**
+	 * usings may be modified, as accepting an auto complete option can add the namespace it requires.
+	 * The variables and target are what the input is parsed with (see CodeInputs), which the suggestions depend on.
+	 */
+	public static string ScrolledArea(Rect position, string input, List<string> usings, IReadOnlyDictionary<string, Type> variables, ParseTarget target, ParseResult parseResult, GUIStyle style, out Vector2 preferredSize) {
+		// Control IDs are handed out in call order (even with hints), so a control only gets the same ID in every event if every event allocates the same IDs before it.
+		// That is why code areas must allocate the same IDs in every event, see DrawScrollView.
 		int controlId = GUIUtility.GetControlID(FocusType.Keyboard);
 		bool hasFocus = GUIUtility.keyboardControl == controlId;
 		CodeAreaState state = (CodeAreaState)GUIUtility.GetStateObject(typeof(CodeAreaState), controlId);
@@ -39,12 +53,17 @@ public class CodeArea {
 		state.SetLines(input.Split('\n'));
 
 		Rect inputBounds = new Rect(position.position + PADDING, position.size - PADDING * 2);
+
+		// The scroll view is handled in every event, not just drawn while repainting: it allocates control IDs, so otherwise the controls after it would get different IDs
+		// in repaint events than in the others (which made every code area after the first one impossible to focus). It also has to see mouse events first, to handle its scrollbars.
+		DrawScrollView(position, input, parseResult, hasFocus, state);
+
 		switch (Event.current.GetTypeForControl(controlId)) {
 			case EventType.KeyDown:
 				if (!hasFocus) break; // key events are sent to every control, only the focused one may handle them
-				string newInput = HandleKeyDownEvent(input, usings, state, out bool canShowAutoComplete);
+				string newInput = HandleKeyDownEvent(input, usings, variables, target, state, out bool canShowAutoComplete);
 				if (newInput != input) {
-					if (canShowAutoComplete) state.CreateAutoComplete(newInput, new ParseContext(usings), false);
+					if (canShowAutoComplete) state.CreateAutoComplete(newInput, new ParseContext(usings, variables), false, target);
 					else state.HideAutoComplete();
 					GUI.changed = true;
 				}
@@ -75,7 +94,7 @@ public class CodeArea {
 
 				GUIUtility.keyboardControl = controlId;
 				GUIUtility.hotControl = controlId; // keeps drag events coming to this control, even outside of its bounds
-				int clickedIndex = state.GetTextIndexAtPosition(Event.current.mousePosition - inputBounds.position);
+				int clickedIndex = state.GetTextIndexAtPosition(Event.current.mousePosition - inputBounds.position + state.scrollPosition);
 				if (Event.current.clickCount == 2) SelectWordAt(input, state, clickedIndex);
 				else if (Event.current.clickCount >= 3) SelectLineAt(input, state, clickedIndex);
 				else if (Event.current.shift) state.selectionEndInternal = clickedIndex;
@@ -85,7 +104,7 @@ public class CodeArea {
 				break;
 			case EventType.MouseDrag:
 				if (GUIUtility.hotControl != controlId) break;
-				state.selectionEndInternal = state.GetTextIndexAtPosition(Event.current.mousePosition - inputBounds.position);
+				state.selectionEndInternal = state.GetTextIndexAtPosition(Event.current.mousePosition - inputBounds.position + state.scrollPosition);
 				Event.current.Use();
 				state.HideAutoComplete();
 				break;
@@ -94,9 +113,6 @@ public class CodeArea {
 				GUIUtility.hotControl = 0;
 				Event.current.Use();
 				break;
-			case EventType.Repaint:
-				Draw(position, input, parseResult, hasFocus, state);
-				break;
 		}
 
 		preferredSize = GetCodeAreaSize(state, position.width);
@@ -104,14 +120,25 @@ public class CodeArea {
 		return input;
 	}
 
-	private static void Draw(Rect position, string input, ParseResult parseResult, bool hasFocus, CodeAreaState state) {
+	// the scroll view with the code in it, which is only drawn in repaint events (see ScrolledArea for why the scroll view is handled in every event)
+	private static void DrawScrollView(Rect position, string input, ParseResult parseResult, bool hasFocus, CodeAreaState state) {
+		bool repaint = Event.current.type == EventType.Repaint;
 		Color oldColor = GUI.color;
-		GUIDrawUtils.FillRoundRect(position, state.Theme.BackgroundColor, 5);
-		GUIDrawUtils.DrawRoundRect(position, hasFocus ? state.Theme.SelectedBorderColor : state.Theme.NormalBorderColor, 2, 5);
+		if (repaint) {
+			GUIDrawUtils.FillRoundRect(position, state.Theme.BackgroundColor, 5);
+			GUIDrawUtils.DrawRoundRect(position, hasFocus ? state.Theme.SelectedBorderColor : state.Theme.NormalBorderColor, 2, 5);
+		}
+
 		Rect codeAreaBounds = new Rect(Vector2.zero, GetCodeAreaSize(state, position.width));
+		bool scrollable = codeAreaBounds.width > position.width || codeAreaBounds.height > position.height;
 		state.scrollPosition = GUI.BeginScrollView(position, state.scrollPosition, codeAreaBounds);
 		Rect contentBounds = new Rect(codeAreaBounds.position + PADDING, codeAreaBounds.size - PADDING * 2);
-		GUI.BeginGroup(contentBounds);
+		if (!repaint) {
+			GUI.EndScrollView(scrollable); // the mouse wheel only scrolls the code if there is something to scroll, otherwise it scrolls the inspector
+			return;
+		}
+
+		GUI.BeginClip(contentBounds); // not BeginGroup or Label (below), as they allocate control IDs, which would shift those of the controls after this one (see ScrolledArea)
 
 		EditorGUIUtility.AddCursorRect(new Rect(Vector2.zero, contentBounds.size), MouseCursor.Text);
 
@@ -177,8 +204,8 @@ public class CodeArea {
 		#endregion
 
 
-		GUI.EndGroup();
-		GUI.EndScrollView();
+		GUI.EndClip();
+		GUI.EndScrollView(scrollable);
 
 		#region AutoComplete
 
@@ -187,31 +214,21 @@ public class CodeArea {
 			int longestLabel = visibleOptions.Aggregate(0, (current, option) => Mathf.Max(current, option.label.Length));
 			int longestDetail = visibleOptions.Aggregate(0, (current, option) => Mathf.Max(current, option.detail.Length));
 
-			Vector2 positionAtCursor = position.position + contentBounds.position + state.GetPositionAtTextIndex(state.selectionEndInternal);
-			Vector2 autoCompleteWindowSize = new Vector2((longestLabel + 3 + longestDetail) * state.CharWidth, visibleOptions.Count * state.LineHeight);
-			float maxY = position.y + position.height;
-			float maxWindowY = positionAtCursor.y + autoCompleteWindowSize.y;
-			if (maxWindowY > maxY) positionAtCursor.y -= maxWindowY - maxY;
-			Rect bounds = new Rect(positionAtCursor, autoCompleteWindowSize);
+			// below the line of the cursor, starting where the completed identifier starts (like in IDEs)
+			Vector2 contentOrigin = position.position + contentBounds.position - state.scrollPosition;
+			Vector2 cursorPosition = state.GetPositionAtTextIndex(state.selectionEndInternal);
+			float x = Mathf.Min(state.GetPositionAtTextIndex(state.AutoCompleteReplaceStart).x, cursorPosition.x);
+			Vector2 size = new Vector2((longestLabel + 3 + longestDetail) * state.CharWidth, visibleOptions.Count * state.LineHeight);
+			Rect bounds = new Rect(contentOrigin + new Vector2(x, cursorPosition.y + state.LineHeight + 2), size);
 
-			GUI.BeginClip(bounds);
-			bounds.position = Vector2.zero;
-			GUIDrawUtils.FillRoundRect(bounds, state.Theme.AutoCompleteNormalBackgroundColor, 0);
-			GUIDrawUtils.DrawRoundRect(bounds, state.Theme.AutoCompleteBorderColor, 1, 0);
-
-			for (int i = 0; i < visibleOptions.Count; i++) {
-				AutoCompleteOption option = visibleOptions[i];
-				float y = bounds.y + i * state.LineHeight;
-
-				if (state.AutoCompleteIndex + i == state.AutoCompleteSelection) GUIDrawUtils.FillRoundRect(new Rect(bounds.x, y, bounds.width, state.LineHeight), state.Theme.AutoCompleteSelectedBackgroundColor, 0);
-
-				GUI.color = Color.black;
-				GUI.Label(new Rect(bounds.x, y, (longestLabel + 3) * state.CharWidth, state.LineHeight), option.label, state.ContentStyle);
-				GUI.color = Color.gray;
-				GUI.Label(new Rect(bounds.x + (longestLabel + 3) * state.CharWidth, y, longestDetail * state.CharWidth, state.LineHeight), option.detail, state.ContentStyle);
+			Action<Rect> drawSuggestions = suggestionBounds => DrawSuggestions(suggestionBounds, visibleOptions, longestLabel, longestDetail, state);
+			if (deferSuggestions) {
+				pendingSuggestions = drawSuggestions;
+				pendingSuggestionsScreenBounds = new Rect(GUIUtility.GUIToScreenPoint(bounds.position), bounds.size);
 			}
-
-			GUI.EndClip();
+			else {
+				drawSuggestions(bounds);
+			}
 		}
 
 		#endregion
@@ -219,7 +236,47 @@ public class CodeArea {
 		GUI.color = oldColor;
 	}
 
-	private static string HandleKeyDownEvent(string input, List<string> usings, CodeAreaState state, out bool canShowAutoComplete) {
+	/**
+	 * Draws the suggestions of the focused code area, if there are any (see deferSuggestions). Returns how far down they reach, in GUI coordinates (-infinity if there are none).
+	 * Only for repaint events.
+	 */
+	public static float DrawPendingSuggestions() {
+		if (pendingSuggestions == null) return float.NegativeInfinity;
+
+		Rect bounds = new Rect(GUIUtility.ScreenToGUIPoint(pendingSuggestionsScreenBounds.position), pendingSuggestionsScreenBounds.size);
+		Color oldColor = GUI.color;
+		pendingSuggestions(bounds);
+		GUI.color = oldColor;
+		pendingSuggestions = null;
+		return bounds.yMax;
+	}
+
+	public static void ClearPendingSuggestions() {
+		pendingSuggestions = null;
+	}
+
+	private static void DrawSuggestions(Rect bounds, List<AutoCompleteOption> visibleOptions, int longestLabel, int longestDetail, CodeAreaState state) {
+		GUI.BeginClip(bounds);
+		bounds.position = Vector2.zero;
+		GUIDrawUtils.FillRoundRect(bounds, state.Theme.AutoCompleteNormalBackgroundColor, 0);
+		GUIDrawUtils.DrawRoundRect(bounds, state.Theme.AutoCompleteBorderColor, 1, 0);
+
+		for (int i = 0; i < visibleOptions.Count; i++) {
+			AutoCompleteOption option = visibleOptions[i];
+			float y = bounds.y + i * state.LineHeight;
+
+			if (state.AutoCompleteIndex + i == state.AutoCompleteSelection) GUIDrawUtils.FillRoundRect(new Rect(bounds.x, y, bounds.width, state.LineHeight), state.Theme.AutoCompleteSelectedBackgroundColor, 0);
+
+			GUI.color = Color.black;
+			DrawText(new Rect(bounds.x, y, (longestLabel + 3) * state.CharWidth, state.LineHeight), option.label, state);
+			GUI.color = Color.gray;
+			DrawText(new Rect(bounds.x + (longestLabel + 3) * state.CharWidth, y, longestDetail * state.CharWidth, state.LineHeight), option.detail, state);
+		}
+
+		GUI.EndClip();
+	}
+
+	private static string HandleKeyDownEvent(string input, List<string> usings, IReadOnlyDictionary<string, Type> variables, ParseTarget target, CodeAreaState state, out bool canShowAutoComplete) {
 		// ok, this is so stupid, on Windows we get a correct KeyCode with a null key char and a None KeyCode with the correct char for each input character
 		// so in a press of 'a' would result in the events [KeyCode.A, char \0] and [KeyCode.None, char 'a']
 		// char \0 is very problematic because inserting it into a string will end that string at that position
@@ -315,7 +372,7 @@ public class CodeArea {
 				// with ctrl held keys are shortcuts, copy, paste etc. arrive as commands (see HandleEditCommand). AltGr is reported as ctrl + alt on Windows, but types characters like '|' on some layouts
 				if ((Event.current.control || Event.current.command) && !Event.current.alt) {
 					if (c == ' ' || Event.current.keyCode == KeyCode.Space) {
-						state.CreateAutoComplete(input, new ParseContext(usings), true); // this will refresh even if the autocomplete is already shown, to allow the user to refresh options if the tool bugs out
+						state.CreateAutoComplete(input, new ParseContext(usings, variables), true, target); // this will refresh even if the autocomplete is already shown, to allow the user to refresh options if the tool bugs out
 						Event.current.Use();
 					}
 
@@ -429,7 +486,12 @@ public class CodeArea {
 
 	private static void StylizedTextField(Vector2 position, string text, Expression expression, CodeAreaState state) {
 		GUI.color = state.Theme.GetExpressionColor(expression);
-		GUI.Label(new Rect(position, new Vector2(text.Length * state.CharWidth, state.LineHeight)), text, state.ContentStyle);
+		DrawText(new Rect(position, new Vector2(text.Length * state.CharWidth, state.LineHeight)), text, state);
+	}
+
+	// like GUI.Label (tinted by GUI.color), but without allocating a control ID (see ScrolledArea), only for repaint events
+	private static void DrawText(Rect position, string text, CodeAreaState state) {
+		state.ContentStyle.Draw(position, new GUIContent(text), false, false, false, false);
 	}
 
 	// the draw functions using handles are generated by ChatGPT

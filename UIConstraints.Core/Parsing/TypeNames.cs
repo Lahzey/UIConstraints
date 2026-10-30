@@ -29,6 +29,7 @@ public static class TypeNames {
 		if (type == TypeRules.NULL) return "null";
 		if (KEYWORDS.TryGetValue(type, out string keyword)) return keyword;
 		if (type.IsArray) return GetDisplayName(type.GetElementType()) + "[" + new string(',', type.GetArrayRank() - 1) + "]";
+		if (Nullable.GetUnderlyingType(type) is { } underlyingType) return GetDisplayName(underlyingType) + "?";
 		if (type.IsByRef) return "ref " + GetDisplayName(type.GetElementType());
 		if (type.IsGenericParameter) return type.Name;
 		if (!type.IsGenericType) return type.Name;
@@ -39,6 +40,7 @@ public static class TypeNames {
 	public static string GetFullName(Type type) {
 		if (KEYWORDS.TryGetValue(type, out string keyword)) return keyword;
 		if (type.IsArray) return GetFullName(type.GetElementType()) + "[" + new string(',', type.GetArrayRank() - 1) + "]";
+		if (Nullable.GetUnderlyingType(type) is { } underlyingType) return GetFullName(underlyingType) + "?";
 		if (type.IsGenericParameter) return type.Name;
 
 		string prefix = type.IsNested ? GetFullName(type.DeclaringType.IsGenericType ? type.DeclaringType.GetGenericTypeDefinition() : type.DeclaringType) + "." : string.IsNullOrEmpty(type.Namespace) ? "" : type.Namespace + ".";

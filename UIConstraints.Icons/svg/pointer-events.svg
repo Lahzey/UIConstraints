@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke-width="1">
+  <!--
+    UI Constraints icon: Pointer Events Constraint
+    Shows: a mouse cursor clicking, with rays around its tip
+    Used by: Unity PointerEventsConstraint (enter, exit, down, up and click actions), Godot gui_input / mouse_entered / mouse_exited signals
+
+    Conventions (shared by all icons, see ../README.md):
+    - 16x16 grid, the size of component icons in Unity and Godot. 1px strokes are on half pixel coordinates (e.g. x="1.5"), so they cover whole pixels and stay sharp.
+    - The color says the category. This is Input: elements the user interacts with, which run actions:
+      fill #A77BDB, outline #5E3A8C.
+    - The amber badge in the bottom right marks it as a UI Constraints component.
+  -->
+
+  <!-- the rays around the tip: up, up left and left -->
+  <path d="M5.5 2.5v-2M3.5 3.5l-1.5-1.5M3.5 5.5h-2" stroke="#A77BDB" stroke-linecap="round"/>
+  <!-- the cursor arrow, its tip at (5.5, 4.5) -->
+  <path d="M5.5 4.5v9l2.5-2.5 1.75 3.5 1.75-.9-1.75-3.4h3.5z" fill="#A77BDB" stroke="#5E3A8C" stroke-linejoin="round"/>
+
+  <!-- Badge (bottom right, drawn last so it is on top): an amber tile with '=' on it, meaning "set by expressions".
+       Every UI Constraints component has it, which tells them apart from the built-in component they control (e.g. Image Constraint vs. Image). -->
+  <rect x="9.5" y="9.5" width="6" height="6" rx="1.5" fill="#F2B134" stroke="#8A5A00"/>
+  <!-- the two bars of the '=' -->
+  <path d="M11 11.5h3M11 13.5h3" stroke="#4A3000" stroke-linecap="round"/>
+</svg>

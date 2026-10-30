@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke-width="1">
+  <!--
+    UI Constraints icon: For Each Constraint
+    Shows: a repeat symbol: two arrows chasing each other around a loop, as the children are repeated for each element
+    Used by: Unity ForEachConstraint (repeats the children for each element of a collection), Godot the equivalent repeating node
+
+    Conventions (shared by all icons, see ../README.md):
+    - 16x16 grid, the size of component icons in Unity and Godot. 1px strokes are on half pixel coordinates (e.g. x="1.5"), so they cover whole pixels and stay sharp.
+    - The color says the category. This is Logic: variables, repetition and visibility:
+      fill #3FB8AF, outline #1D6F69.
+    - The amber badge in the bottom right marks it as a UI Constraints component.
+  -->
+
+  <!-- the upper half of the loop: up the left side and right along the top -->
+  <path d="M2.5 8V5.5a2 2 0 0 1 2-2h7.5" stroke="#3FB8AF" stroke-width="2" stroke-linecap="round"/>
+  <!-- its arrow head, pointing right at the end of the top -->
+  <path d="M10 1.5l2 2-2 2" stroke="#3FB8AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- the lower half: down the right side and left along the bottom (partly behind the badge) -->
+  <path d="M13.5 7v2.5a2 2 0 0 1-2 2H4" stroke="#3FB8AF" stroke-width="2" stroke-linecap="round"/>
+  <!-- its arrow head, pointing left at the end of the bottom -->
+  <path d="M6 9.5l-2 2 2 2" stroke="#3FB8AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Badge (bottom right, drawn last so it is on top): an amber tile with '=' on it, meaning "set by expressions".
+       Every UI Constraints component has it, which tells them apart from the built-in component they control (e.g. Image Constraint vs. Image). -->
+  <rect x="9.5" y="9.5" width="6" height="6" rx="1.5" fill="#F2B134" stroke="#8A5A00"/>
+  <!-- the two bars of the '=' -->
+  <path d="M11 11.5h3M11 13.5h3" stroke="#4A3000" stroke-linecap="round"/>
+</svg>

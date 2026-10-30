@@ -31,8 +31,9 @@ public static class AutoComplete {
 	 * Returns the options to suggest for the cursor position, best options first.
 	 * replaceStart is set to the start of the identifier being typed, the text from there to the cursor should be replaced by the inserted text of the chosen option.
 	 * If explicitRequest is false (suggestions while typing), types are only suggested once at least one character of their name was typed.
+	 * For ParseTarget.Type, only types (and namespaces) are suggested.
 	 */
-	public static List<AutoCompleteOption> GetOptions(string input, int cursor, ParseContext context, bool explicitRequest, out int replaceStart) {
+	public static List<AutoCompleteOption> GetOptions(string input, int cursor, ParseContext context, bool explicitRequest, out int replaceStart, ParseTarget target = ParseTarget.Value) {
 		replaceStart = cursor;
 		List<AutoCompleteOption> options = new List<AutoCompleteOption>();
 
@@ -72,8 +73,8 @@ public static class AutoComplete {
 			else if (valueType != null && valueType != typeof(void) && valueType != TypeRules.NULL) AddMemberOptions(options, valueType, false, prefix);
 		}
 		else {
-			// after 'is' and 'as' only types make sense
-			bool typesOnly = previous is IdentifierToken { Identifier: "is" or "as" };
+			// after 'is', 'as' and 'new' only types make sense
+			bool typesOnly = target == ParseTarget.Type || previous is IdentifierToken { Identifier: "is" or "as" or "new" };
 
 			// only suggest at the start of an operand, e.g. not in "player na" or "(a + b) na"
 			if (!typesOnly && (previous is IdentifierToken or StringToken or NumberToken || previous == SingleCharToken.rparen || previous == SingleCharToken.rbracket)) return options;
@@ -96,11 +97,11 @@ public static class AutoComplete {
 		int start = -1;
 		for (; index >= 0; index--) {
 			ParsedElement token = tokens[index];
-			if (token == SingleCharToken.rparen) {
+			if (token == SingleCharToken.rparen || token == SingleCharToken.rbracket) {
 				depth++;
 			}
-			else if (token == SingleCharToken.lparen) {
-				if (depth == 0) break; // an unclosed parenthesis is not part of the receiver, e.g. in "Mathf.Max(player.na"
+			else if (token == SingleCharToken.lparen || token == SingleCharToken.lbracket) {
+				if (depth == 0) break; // an unclosed parenthesis is not part of the receiver, e.g. in "Mathf.Max(player.na" or "list[player.na"
 				depth--;
 			}
 			else if (depth == 0 && token == SingleCharToken.greater) {
@@ -109,7 +110,7 @@ public static class AutoComplete {
 				if (genericStart < 0) break;
 				index = genericStart;
 			}
-			else if (depth == 0 && token is not (IdentifierToken or StringToken or NumberToken or WhitespaceToken) && token != SingleCharToken.dot && token != SingleCharToken.lbracket && token != SingleCharToken.rbracket) {
+			else if (depth == 0 && token is not (IdentifierToken or StringToken or NumberToken or WhitespaceToken) && token != SingleCharToken.dot) {
 				break;
 			}
 
@@ -131,7 +132,7 @@ public static class AutoComplete {
 				depth--;
 				if (depth == 0) return i;
 			}
-			else if (token is not (IdentifierToken or WhitespaceToken) && token != SingleCharToken.comma && token != SingleCharToken.dot && token != SingleCharToken.lbracket && token != SingleCharToken.rbracket) {
+			else if (token is not (IdentifierToken or WhitespaceToken) && token != SingleCharToken.comma && token != SingleCharToken.dot) {
 				return -1;
 			}
 		}
