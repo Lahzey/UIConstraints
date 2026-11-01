@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UIConstraints.Core.Animation;
 using UIConstraints.Core.Parsing;
+using UIConstraints.Unity.Animation;
 using UIConstraints.Unity.Constraints;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -40,6 +42,8 @@ public static class ConstraintChecks {
 				for (int i = 0; i < parseResult.Exception.MessageCount(); i++) problems.Add(new ConstraintProblem(ProblemSeverity.Error, $"{fieldName}: {parseResult.Exception.GetMessage(i)}"));
 			}
 
+		CheckTransitions(constraint, availableVariables, includeExpressionErrors, problems);
+
 		string providedName = constraint switch {
 			VariableConstraint variableConstraint => variableConstraint.VariableName,
 			ForEachConstraint forEachConstraint => forEachConstraint.VariableName,
@@ -50,6 +54,31 @@ public static class ConstraintChecks {
 
 		if (constraint is ExpectedVariable expectedVariable) CheckExpectedVariable(expectedVariable, availableVariables, problems);
 		return problems;
+	}
+
+	// transitions that can't animate their value (e.g. because the type of a variable changed), and errors in their 'animate from' expressions
+	private static void CheckTransitions(UIConstraint constraint, Dictionary<string, Type> availableVariables, bool includeExpressionErrors, List<ConstraintProblem> problems) {
+		UnityBlending.EnsureRegistered();
+		foreach (FieldInfo field in CodeInputs.GetFields(constraint.GetType())) {
+			Transition transition = ((CodeInput)field.GetValue(constraint))?.transition;
+			if (transition == null) continue;
+
+			string fieldName = ObjectNames.NicifyVariableName(field.Name);
+			Type animatedType = (constraint as IAnimatedInputs)?.GetAnimatedType(field);
+			if (animatedType == null) {
+				problems.Add(new ConstraintProblem(ProblemSeverity.Warning, $"{fieldName} has an animation, but can't be animated"));
+				continue;
+			}
+
+			if (!transition.CanAnimate(animatedType)) problems.Add(new ConstraintProblem(ProblemSeverity.Error, $"{fieldName} can't be animated with {Transition.GetDisplayName(transition.GetType())}, as it is {TypeNames.GetDisplayName(animatedType)}"));
+			else if (transition is ImageFadeTransition fade && fade.GetParameters(0.5f).shader != null && constraint.TryGetComponent(out UnityEngine.UI.Graphic graphic) && !FadeGraphic.CanDraw(graphic))
+				problems.Add(new ConstraintProblem(ProblemSeverity.Warning, $"{fieldName} crossfades instead of using {Transition.GetDisplayName(transition.GetType())}, which only works for simple images"));
+			if (!includeExpressionErrors) continue; // shown below the input
+
+			ParseResult animateFrom = CodeInputs.ParseAnimateFrom(constraint, field, availableVariables);
+			if (animateFrom != null && !animateFrom.Success)
+				for (int i = 0; i < animateFrom.Exception.MessageCount(); i++) problems.Add(new ConstraintProblem(ProblemSeverity.Error, $"{fieldName} (animate from): {animateFrom.Exception.GetMessage(i)}"));
+		}
 	}
 
 	private static void CheckExpectedVariable(ExpectedVariable expectedVariable, Dictionary<string, Type> availableVariables, List<ConstraintProblem> problems) {

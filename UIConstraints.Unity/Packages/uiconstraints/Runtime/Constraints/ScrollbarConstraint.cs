@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace UIConstraints.Unity.Constraints {
@@ -12,7 +12,7 @@ public class ScrollbarConstraint : ComponentConstraint<Scrollbar> {
 	[SerializeField, Action("value", typeof(float))] private CodeInput onValueChanged;
 
 	protected override void Bind() {
-		BindProperty<float>(nameof(value), s => s.value, (s, newValue) => s.SetValueWithoutNotify(newValue));
+		BindProperty<float>(nameof(value), s => s.value, (s, newValue) => s.SetValueWithoutNotify(newValue), true);
 		BindProperty<float>(nameof(size), s => s.size, (s, newSize) => s.size = newSize);
 		BindProperty<bool>(nameof(interactable), s => s.interactable, (s, newInteractable) => s.interactable = newInteractable);
 		BindAction(nameof(onValueChanged), Target.onValueChanged);

@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -20,7 +20,7 @@ public class DropdownConstraint : ComponentConstraint<TMP_Dropdown> {
 
 	protected override void Bind() {
 		BindProperty<IEnumerable>(nameof(options), SetOptions); // before the value, which is clamped to the options
-		BindProperty<int>(nameof(value), d => d.value, (d, index) => d.SetValueWithoutNotify(index));
+		BindProperty<int>(nameof(value), d => d.value, (d, index) => d.SetValueWithoutNotify(index), true);
 		BindProperty<bool>(nameof(interactable), d => d.interactable, (d, newInteractable) => d.interactable = newInteractable);
 		BindAction(nameof(onValueChanged), Target.onValueChanged);
 	}

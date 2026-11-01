@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace UIConstraints.Unity.Constraints {
@@ -15,7 +15,7 @@ public class ToggleConstraint : ComponentConstraint<Toggle> {
 	[SerializeField, Action("value", typeof(bool))] private CodeInput onValueChanged;
 
 	protected override void Bind() {
-		BindProperty<bool>(nameof(isOn), t => t.isOn, (t, value) => t.SetIsOnWithoutNotify(value));
+		BindProperty<bool>(nameof(isOn), t => t.isOn, (t, value) => t.SetIsOnWithoutNotify(value), true);
 		BindProperty<bool>(nameof(interactable), t => t.interactable, (t, value) => t.interactable = value);
 		BindAction(nameof(onValueChanged), Target.onValueChanged);
 	}

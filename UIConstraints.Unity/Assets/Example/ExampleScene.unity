@@ -269,12 +269,23 @@ MonoBehaviour:
   horizontal:
     input: false
     usings: []
+    transition:
+      rid: -2
   vertical:
     input: 
     usings: []
+    transition:
+      rid: -2
   onValueChanged:
     input: GameLog.scrolledUp = value.y > 0.01f
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &53574938
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -553,12 +564,23 @@ MonoBehaviour:
   alpha:
     input: Settings.panelOpacity
     usings: []
+    transition:
+      rid: -2
   interactable:
     input: 
     usings: []
+    transition:
+      rid: -2
   blocksRaycasts:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!225 &91505581
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -589,9 +611,18 @@ MonoBehaviour:
   effectColor:
     input: new Color(0, 0, 0, 0.35f)
     usings: []
+    transition:
+      rid: -2
   effectDistance:
     input: new Vector2(1, -1) * Settings.spacing / 3
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &91505583
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -625,15 +656,56 @@ MonoBehaviour:
   sprite:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.panel
     usings: []
+    transition:
+      rid: 1128836305408491530
   fillAmount:
     input: 
     usings: []
+    transition:
+      rid: -2
   preserveAspect:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1128836305408491530
+      type: {class: InterpolateTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0
+        animateWhen: 0
+        useScaledTime: 0
+        animateFrom: 
+        duration: 0.5
+        fullDurationFrom: 0
+        curve:
+          keys:
+          - time: 0
+            value: 0
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          - time: 1
+            value: 1
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          preWrapMode: 0
+          postWrapMode: 0
+        rounding: 0
 --- !u!114 &91505585
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -853,12 +925,23 @@ MonoBehaviour:
   alpha:
     input: Settings.panelOpacity
     usings: []
+    transition:
+      rid: -2
   interactable:
     input: 
     usings: []
+    transition:
+      rid: -2
   blocksRaycasts:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!225 &111605014
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -889,9 +972,18 @@ MonoBehaviour:
   effectColor:
     input: new Color(0, 0, 0, 0.35f)
     usings: []
+    transition:
+      rid: -2
   effectDistance:
     input: new Vector2(1, -1) * Settings.spacing / 3
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &111605016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -925,15 +1017,56 @@ MonoBehaviour:
   sprite:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.panel
     usings: []
+    transition:
+      rid: 1128836305408491529
   fillAmount:
     input: 
     usings: []
+    transition:
+      rid: -2
   preserveAspect:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1128836305408491529
+      type: {class: InterpolateTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0
+        animateWhen: 0
+        useScaledTime: 0
+        animateFrom: 
+        duration: 0.5
+        fullDurationFrom: 0
+        curve:
+          keys:
+          - time: 0
+            value: 0
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          - time: 1
+            value: 1
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          preWrapMode: 0
+          postWrapMode: 0
+        rounding: 0
 --- !u!114 &111605018
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1138,21 +1271,38 @@ MonoBehaviour:
   text:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.text * 0.7f
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &129593924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1171,7 +1321,14 @@ MonoBehaviour:
   condition:
     input: GameLog.scrolledUp
     usings: []
+    transition:
+      rid: -2
   disableAtRuntime: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &129593925
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1387,10 +1544,19 @@ MonoBehaviour:
   interactable:
     input: 
     usings: []
+    transition:
+      rid: -2
   onClick:
     input: player.currentHealth = player.maxHealth; GameLog.Add(player.playerName
       + " was revived")
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &185323297
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1534,6 +1700,13 @@ MonoBehaviour:
   value:
     input: Settings.Theme
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &202312680
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1553,6 +1726,13 @@ MonoBehaviour:
   value:
     input: Shop.Instance
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &202312681
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1572,6 +1752,13 @@ MonoBehaviour:
   value:
     input: Player.Instance
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &202312682
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1824,6 +2011,13 @@ MonoBehaviour:
   collection:
     input: shop.items
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &247414471
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2099,21 +2293,38 @@ MonoBehaviour:
   text:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: Settings.Accent
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &281454651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2270,21 +2481,38 @@ MonoBehaviour:
   text:
     input: '"x" + entry.Value'
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.text
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &309702155
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2576,12 +2804,23 @@ MonoBehaviour:
   alpha:
     input: Settings.panelOpacity
     usings: []
+    transition:
+      rid: -2
   interactable:
     input: 
     usings: []
+    transition:
+      rid: -2
   blocksRaycasts:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!225 &339699890
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -2612,9 +2851,18 @@ MonoBehaviour:
   effectColor:
     input: new Color(0, 0, 0, 0.35f)
     usings: []
+    transition:
+      rid: -2
   effectDistance:
     input: new Vector2(1, -1) * Settings.spacing / 3
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &339699892
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2648,15 +2896,56 @@ MonoBehaviour:
   sprite:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.panel
     usings: []
+    transition:
+      rid: 1128836305408491527
   fillAmount:
     input: 
     usings: []
+    transition:
+      rid: -2
   preserveAspect:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1128836305408491527
+      type: {class: InterpolateTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0
+        animateWhen: 0
+        useScaledTime: 0
+        animateFrom: 
+        duration: 0.5
+        fullDurationFrom: 0
+        curve:
+          keys:
+          - time: 0
+            value: 0
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          - time: 1
+            value: 1
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          preWrapMode: 0
+          postWrapMode: 0
+        rounding: 0
 --- !u!114 &339699894
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2752,21 +3041,66 @@ MonoBehaviour:
     input: '"Hello, " + (player.playerName == "" ? "stranger" : player.playerName)
       + "!"'
     usings: []
+    transition:
+      rid: 1128836305408491524
   color:
     input: theme.text
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
-    input: (int)(Time.timeSinceLevelLoad * 15)
+    input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1128836305408491524
+      type: {class: TypewriterTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0
+        animateWhen: 0
+        useScaledTime: 0
+        animateFrom: '""'
+        duration: 0.6
+        fullDurationFrom: 12
+        curve:
+          keys:
+          - time: 0
+            value: 0
+            inTangent: 1
+            outTangent: 1
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          - time: 1
+            value: 1
+            inTangent: 1
+            outTangent: 1
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          preWrapMode: 0
+          postWrapMode: 0
+        mode: 0
 --- !u!114 &344423504
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3130,6 +3464,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1048765460}
   - {fileID: 825810265}
   - {fileID: 1249496236}
   m_Father: {fileID: 339699886}
@@ -3561,15 +3896,28 @@ MonoBehaviour:
   value:
     input: Settings.accentHue
     usings: []
+    transition:
+      rid: -2
   size:
     input: 0.1f
     usings: []
+    transition:
+      rid: -2
   interactable:
     input: 
     usings: []
+    transition:
+      rid: -2
   onValueChanged:
     input: Settings.accentHue = value
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &481683098
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3771,6 +4119,13 @@ MonoBehaviour:
   collection:
     input: GameLog.messages
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &489668282
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3868,15 +4223,56 @@ MonoBehaviour:
   sprite:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.background
     usings: []
+    transition:
+      rid: 1128836305408491526
   fillAmount:
     input: 
     usings: []
+    transition:
+      rid: -2
   preserveAspect:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1128836305408491526
+      type: {class: InterpolateTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0
+        animateWhen: 0
+        useScaledTime: 0
+        animateFrom: 
+        duration: 0.5
+        fullDurationFrom: 0
+        curve:
+          keys:
+          - time: 0
+            value: 0
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          - time: 1
+            value: 1
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          preWrapMode: 0
+          postWrapMode: 0
+        rounding: 0
 --- !u!114 &521052867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4008,21 +4404,38 @@ MonoBehaviour:
   text:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.text
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &575432750
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4199,21 +4612,38 @@ MonoBehaviour:
   text:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: Settings.Accent
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &577671250
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4372,21 +4802,69 @@ MonoBehaviour:
     input: '"<b>" + Tooltip.item.displayName + "</b>: " + Tooltip.item.description
       + "\nClick to sell one for " + shop.SellPrice(Tooltip.item) + " gold"'
     usings: []
+    transition:
+      rid: 1128836305408491525
   color:
     input: theme.text
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1128836305408491525
+      type: {class: ScrambleTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0
+        animateWhen: 0
+        useScaledTime: 0
+        animateFrom: 
+        duration: 0.4
+        fullDurationFrom: 0
+        curve:
+          keys:
+          - time: 0
+            value: 0
+            inTangent: 1
+            outTangent: 1
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          - time: 1
+            value: 1
+            inTangent: 1
+            outTangent: 1
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          preWrapMode: 0
+          postWrapMode: 0
+        characters: abcdefghijklmnopqrstuvwxyz
+        order: 0
+        changeInterval: 0.05
+        keepWhitespace: 1
 --- !u!114 &581938300
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4405,7 +4883,14 @@ MonoBehaviour:
   condition:
     input: player.showInventory && Tooltip.item != null && player.inventory.ContainsKey(Tooltip.item)
     usings: []
+    transition:
+      rid: -2
   disableAtRuntime: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &581938301
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5280,30 +5765,81 @@ MonoBehaviour:
   anchorMinX:
     input: 
     usings: []
+    transition:
+      rid: -2
   anchorMaxX:
     input: player.HealthPercent
     usings: []
+    transition:
+      rid: 1128836305408491520
   anchorMinY:
     input: 
     usings: []
+    transition:
+      rid: -2
   anchorMaxY:
     input: 
     usings: []
+    transition:
+      rid: -2
   anchoredPosition:
     input: 
     usings: []
+    transition:
+      rid: -2
   sizeDelta:
     input: 
     usings: []
+    transition:
+      rid: -2
   pivot:
     input: 
     usings: []
+    transition:
+      rid: -2
   rotation:
     input: 
     usings: []
+    transition:
+      rid: -2
   scale:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1128836305408491520
+      type: {class: InterpolateTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0
+        animateWhen: 0
+        useScaledTime: 0
+        animateFrom: 
+        duration: 0.3
+        fullDurationFrom: 0
+        curve:
+          keys:
+          - time: 0
+            value: 0
+            inTangent: 2
+            outTangent: 2
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          - time: 1
+            value: 1
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          preWrapMode: 0
+          postWrapMode: 0
+        rounding: 0
 --- !u!114 &825810267
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5322,16 +5858,29 @@ MonoBehaviour:
   sprite:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: Color.Lerp(new Color(0.9f, 0.25f, 0.2f), new Color(0.3f, 0.8f, 0.35f),
       player.HealthPercent)
     usings: []
+    transition:
+      rid: -2
   fillAmount:
     input: 
     usings: []
+    transition:
+      rid: -2
   preserveAspect:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &825810268
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5426,21 +5975,38 @@ MonoBehaviour:
   text:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.text
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &826178561
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5761,15 +6327,28 @@ MonoBehaviour:
   sprite:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: Settings.Accent
     usings: []
+    transition:
+      rid: -2
   fillAmount:
     input: 
     usings: []
+    transition:
+      rid: -2
   preserveAspect:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &855306875
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5884,15 +6463,28 @@ MonoBehaviour:
   sprite:
     input: entry.Key.sprite
     usings: []
+    transition:
+      rid: -2
   color:
     input: 
     usings: []
+    transition:
+      rid: -2
   fillAmount:
     input: 
     usings: []
+    transition:
+      rid: -2
   preserveAspect:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &893114096
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5990,9 +6582,18 @@ MonoBehaviour:
   interactable:
     input: GameLog.messages.Count > 0
     usings: []
+    transition:
+      rid: -2
   onClick:
     input: GameLog.messages.Clear(); GameLog.scrolledUp = false
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &918212079
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6382,21 +6983,38 @@ MonoBehaviour:
   text:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: Settings.Accent
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &972565403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6579,7 +7197,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 983380575}
   m_HandleRect: {fileID: 983380574}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -6841,21 +7459,38 @@ MonoBehaviour:
   text:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.text
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1013146623
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7032,13 +7667,24 @@ MonoBehaviour:
   texture:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.text
     usings: []
+    transition:
+      rid: -2
   uvRect:
     input: 'Settings.animateBackground ? new Rect(Time.time * 0.02f, Time.time *
       0.01f, 24, 13.5f) : new Rect(0, 0, 24, 13.5f)'
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1036312976
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7131,21 +7777,66 @@ MonoBehaviour:
   text:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: Settings.Accent
     usings: []
+    transition:
+      rid: 1128836305408491532
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1128836305408491532
+      type: {class: InterpolateTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0
+        animateWhen: 0
+        useScaledTime: 0
+        animateFrom: 
+        duration: 0.25
+        fullDurationFrom: 0
+        curve:
+          keys:
+          - time: 0
+            value: 0
+            inTangent: 2
+            outTangent: 2
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          - time: 1
+            value: 1
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          preWrapMode: 0
+          postWrapMode: 0
+        rounding: 0
 --- !u!114 &1046153650
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7266,6 +7957,175 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1046153647}
   m_CullTransparentMesh: 1
+--- !u!1 &1048765459
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1048765460}
+  - component: {fileID: 1048765463}
+  - component: {fileID: 1048765462}
+  - component: {fileID: 1048765461}
+  m_Layer: 0
+  m_Name: Damage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1048765460
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1048765459}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 429103610}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: -6, y: -6}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1048765461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1048765459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f0b9b325cb74a9089a80db512bf4925, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UIConstraints.Unity::UIConstraints.Unity.Constraints.RectTransformConstraint
+  usings:
+  - Example
+  - UnityEngine
+  anchorMinX:
+    input: 
+    usings: []
+    transition:
+      rid: -2
+  anchorMaxX:
+    input: player.HealthPercent
+    usings: []
+    transition:
+      rid: 1128836305408491521
+  anchorMinY:
+    input: 
+    usings: []
+    transition:
+      rid: -2
+  anchorMaxY:
+    input: 
+    usings: []
+    transition:
+      rid: -2
+  anchoredPosition:
+    input: 
+    usings: []
+    transition:
+      rid: -2
+  sizeDelta:
+    input: 
+    usings: []
+    transition:
+      rid: -2
+  pivot:
+    input: 
+    usings: []
+    transition:
+      rid: -2
+  rotation:
+    input: 
+    usings: []
+    transition:
+      rid: -2
+  scale:
+    input: 
+    usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1128836305408491521
+      type: {class: InterpolateTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0.6
+        animateWhen: 2
+        useScaledTime: 0
+        animateFrom: 
+        duration: 0.5
+        fullDurationFrom: 0
+        curve:
+          keys:
+          - time: 0
+            value: 0
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          - time: 1
+            value: 1
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          preWrapMode: 0
+          postWrapMode: 0
+        rounding: 0
+--- !u!114 &1048765462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1048765459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 0.55, b: 0.35, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1048765463
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1048765459}
+  m_CullTransparentMesh: 1
 --- !u!1 &1058301470
 GameObject:
   m_ObjectHideFlags: 0
@@ -7361,9 +8221,18 @@ MonoBehaviour:
   interactable:
     input: player.IsAlive
     usings: []
+    transition:
+      rid: -2
   onClick:
     input: player.Damage(15)
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1196288474
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7597,21 +8466,65 @@ MonoBehaviour:
   text:
     input: Mathf.CeilToInt(player.currentHealth) + " / " + player.maxHealth
     usings: []
+    transition:
+      rid: 1128836305408491522
   color:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1128836305408491522
+      type: {class: NumbersInTextTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0
+        animateWhen: 0
+        useScaledTime: 0
+        animateFrom: 
+        duration: 0.3
+        fullDurationFrom: 0
+        curve:
+          keys:
+          - time: 0
+            value: 0
+            inTangent: 2
+            outTangent: 2
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          - time: 1
+            value: 1
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          preWrapMode: 0
+          postWrapMode: 0
 --- !u!114 &1249496238
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7771,21 +8684,38 @@ MonoBehaviour:
   text:
     input: player.playerName
     usings: []
+    transition:
+      rid: -2
   placeholder:
     input: '"Enter your name"'
     usings: []
+    transition:
+      rid: -2
   interactable:
     input: 
     usings: []
+    transition:
+      rid: -2
   onValueChanged:
     input: player.playerName = value
     usings: []
+    transition:
+      rid: -2
   onEndEdit:
     input: 
     usings: []
+    transition:
+      rid: -2
   onSubmit:
     input: GameLog.Add("Your name is now " + value)
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1302939633
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8003,12 +8933,23 @@ MonoBehaviour:
   isOn:
     input: Settings.animateBackground
     usings: []
+    transition:
+      rid: -2
   interactable:
     input: 
     usings: []
+    transition:
+      rid: -2
   onValueChanged:
     input: Settings.animateBackground = value
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1310009043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8133,21 +9074,38 @@ MonoBehaviour:
   text:
     input: message
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.text
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1324577521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8444,6 +9402,13 @@ MonoBehaviour:
   collection:
     input: player.inventory
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1338319139
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8462,18 +9427,33 @@ MonoBehaviour:
   padding:
     input: "\t\t"
     usings: []
+    transition:
+      rid: -2
   cellSize:
     input: "Vector2.one * Settings.rowHeight * 1.6f\t\t"
     usings: []
+    transition:
+      rid: -2
   spacing:
     input: Vector2.one * Settings.spacing / 2
     usings: []
+    transition:
+      rid: -2
   childAlignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   constraintCount:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1338319140
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8492,7 +9472,14 @@ MonoBehaviour:
   condition:
     input: player.showInventory
     usings: []
+    transition:
+      rid: -2
   disableAtRuntime: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1338319141
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8574,21 +9561,38 @@ MonoBehaviour:
   text:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: Settings.Accent
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1362349515
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8767,30 +9771,53 @@ MonoBehaviour:
   anchorMinX:
     input: 
     usings: []
+    transition:
+      rid: -2
   anchorMaxX:
     input: 
     usings: []
+    transition:
+      rid: -2
   anchorMinY:
     input: 
     usings: []
+    transition:
+      rid: -2
   anchorMaxY:
     input: 
     usings: []
+    transition:
+      rid: -2
   anchoredPosition:
     input: 
     usings: []
+    transition:
+      rid: -2
   sizeDelta:
     input: 
     usings: []
+    transition:
+      rid: -2
   pivot:
     input: 
     usings: []
+    transition:
+      rid: -2
   rotation:
     input: -Time.time * 90
     usings: []
+    transition:
+      rid: -2
   scale:
     input: Vector3.one * (1 + Mathf.Sin(Time.time * 4) * 0.1f)
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1372484812
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8809,15 +9836,57 @@ MonoBehaviour:
   sprite:
     input: shop.items[(int)(Time.time / 2) % shop.items.Count].sprite
     usings: []
+    transition:
+      rid: 5874943552741703824
   color:
     input: 
     usings: []
+    transition:
+      rid: -2
   fillAmount:
     input: 
     usings: []
+    transition:
+      rid: -2
   preserveAspect:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 5874943552741703824
+      type: {class: EdgeRevealTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0
+        animateWhen: 0
+        useScaledTime: 0
+        animateFrom: 
+        duration: 1
+        fullDurationFrom: 0
+        curve:
+          keys:
+          - time: 0
+            value: 0
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          - time: 1
+            value: 1
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          preWrapMode: 0
+          postWrapMode: 0
+        softness: 0.03
+        overlap: 1
 --- !u!114 &1372484813
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8971,18 +10040,33 @@ MonoBehaviour:
   value:
     input: Settings.spacing
     usings: []
+    transition:
+      rid: -2
   minValue:
     input: 0
     usings: []
+    transition:
+      rid: -2
   maxValue:
     input: 32
     usings: []
+    transition:
+      rid: -2
   interactable:
     input: 
     usings: []
+    transition:
+      rid: -2
   onValueChanged:
     input: Settings.spacing = value
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1405124066
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9198,12 +10282,23 @@ MonoBehaviour:
   isOn:
     input: player.showInventory
     usings: []
+    transition:
+      rid: -2
   interactable:
     input: 
     usings: []
+    transition:
+      rid: -2
   onValueChanged:
     input: player.showInventory = value
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1416707551
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9331,18 +10426,33 @@ MonoBehaviour:
   value:
     input: Settings.rowHeight
     usings: []
+    transition:
+      rid: -2
   minValue:
     input: 32
     usings: []
+    transition:
+      rid: -2
   maxValue:
     input: 72
     usings: []
+    transition:
+      rid: -2
   interactable:
     input: 
     usings: []
+    transition:
+      rid: -2
   onValueChanged:
     input: Settings.rowHeight = value
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1436020241
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9747,18 +10857,33 @@ MonoBehaviour:
   value:
     input: Settings.panelOpacity
     usings: []
+    transition:
+      rid: -2
   minValue:
     input: 0.3f
     usings: []
+    transition:
+      rid: -2
   maxValue:
     input: 1
     usings: []
+    transition:
+      rid: -2
   interactable:
     input: 
     usings: []
+    transition:
+      rid: -2
   onValueChanged:
     input: Settings.panelOpacity = value
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1499909056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9961,21 +11086,38 @@ MonoBehaviour:
   text:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: Settings.Accent
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1511613010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10134,15 +11276,38 @@ MonoBehaviour:
   padding:
     input: 
     usings: []
+    transition:
+      rid: -2
   spacing:
     input: Settings.spacing
     usings: []
+    transition:
+      rid: 1128836305408491534
   childAlignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   reverseArrangement:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1128836305408491534
+      type: {class: SpringTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0
+        animateWhen: 0
+        useScaledTime: 0
+        animateFrom: 
+        stiffness: 220
+        damping: 14
+        precision: 0.001
 --- !u!114 &1530170680
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10752,7 +11917,14 @@ MonoBehaviour:
   condition:
     input: '!player.IsAlive'
     usings: []
+    transition:
+      rid: -2
   disableAtRuntime: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1731057904
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10994,21 +12166,65 @@ MonoBehaviour:
   text:
     input: player.gold + " gold"
     usings: []
+    transition:
+      rid: 1128836305408491523
   color:
     input: 'player.gold < 10 ? new Color(1, 0.4f, 0.4f) : Settings.Accent'
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1128836305408491523
+      type: {class: NumbersInTextTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0
+        animateWhen: 0
+        useScaledTime: 0
+        animateFrom: '"0 gold"'
+        duration: 0.6
+        fullDurationFrom: 100
+        curve:
+          keys:
+          - time: 0
+            value: 0
+            inTangent: 2
+            outTangent: 2
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          - time: 1
+            value: 1
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          preWrapMode: 0
+          postWrapMode: 0
 --- !u!114 &1751191559
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11240,12 +12456,51 @@ MonoBehaviour:
   alpha:
     input: 'Settings.panelOpacity * (player.IsAlive ? 1 : 0.5f)'
     usings: []
+    transition:
+      rid: 1128836305408491533
   interactable:
     input: player.IsAlive
     usings: []
+    transition:
+      rid: -2
   blocksRaycasts:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1128836305408491533
+      type: {class: InterpolateTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0
+        animateWhen: 0
+        useScaledTime: 0
+        animateFrom: 
+        duration: 0.4
+        fullDurationFrom: 0
+        curve:
+          keys:
+          - time: 0
+            value: 0
+            inTangent: 2
+            outTangent: 2
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          - time: 1
+            value: 1
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          preWrapMode: 0
+          postWrapMode: 0
+        rounding: 0
 --- !u!225 &1774453035
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -11276,9 +12531,18 @@ MonoBehaviour:
   effectColor:
     input: new Color(0, 0, 0, 0.35f)
     usings: []
+    transition:
+      rid: -2
   effectDistance:
     input: new Vector2(1, -1) * Settings.spacing / 3
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1774453037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11312,15 +12576,56 @@ MonoBehaviour:
   sprite:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.panel
     usings: []
+    transition:
+      rid: 1128836305408491528
   fillAmount:
     input: 
     usings: []
+    transition:
+      rid: -2
   preserveAspect:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1128836305408491528
+      type: {class: InterpolateTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0
+        animateWhen: 0
+        useScaledTime: 0
+        animateFrom: 
+        duration: 0.5
+        fullDurationFrom: 0
+        curve:
+          keys:
+          - time: 0
+            value: 0
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          - time: 1
+            value: 1
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          preWrapMode: 0
+          postWrapMode: 0
+        rounding: 0
 --- !u!114 &1774453039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11416,21 +12721,38 @@ MonoBehaviour:
   text:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.text * 0.7f
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1781132353
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11449,7 +12771,14 @@ MonoBehaviour:
   condition:
     input: player.showInventory && player.inventory.Count == 0
     usings: []
+    transition:
+      rid: -2
   disableAtRuntime: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1781132354
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11681,21 +13010,38 @@ MonoBehaviour:
   text:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.text * 0.7f
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1789226040
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11856,18 +13202,33 @@ MonoBehaviour:
   onPointerEnter:
     input: Tooltip.item = entry.Key
     usings: []
+    transition:
+      rid: -2
   onPointerExit:
     input: Tooltip.item = null
     usings: []
+    transition:
+      rid: -2
   onPointerDown:
     input: 
     usings: []
+    transition:
+      rid: -2
   onPointerUp:
     input: 
     usings: []
+    transition:
+      rid: -2
   onPointerClick:
     input: shop.Sell(entry.Key)
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1789421658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11886,15 +13247,28 @@ MonoBehaviour:
   sprite:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: 'Tooltip.item == entry.Key ? Settings.Accent : theme.background'
     usings: []
+    transition:
+      rid: -2
   fillAmount:
     input: 
     usings: []
+    transition:
+      rid: -2
   preserveAspect:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1789421659
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11994,15 +13368,28 @@ MonoBehaviour:
   options:
     input: Settings.themes
     usings: []
+    transition:
+      rid: -2
   value:
     input: Settings.themeIndex
     usings: []
+    transition:
+      rid: -2
   interactable:
     input: 
     usings: []
+    transition:
+      rid: -2
   onValueChanged:
     input: Settings.themeIndex = value
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1791680339
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12218,21 +13605,38 @@ MonoBehaviour:
   text:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.text
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1803225580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12410,21 +13814,38 @@ MonoBehaviour:
   text:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.text
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1809638207
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12604,18 +14025,33 @@ MonoBehaviour:
   value:
     input: player.healthRegen
     usings: []
+    transition:
+      rid: -2
   minValue:
     input: 0
     usings: []
+    transition:
+      rid: -2
   maxValue:
     input: 10
     usings: []
+    transition:
+      rid: -2
   interactable:
     input: player.IsAlive
     usings: []
+    transition:
+      rid: -2
   onValueChanged:
     input: player.healthRegen = value
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1810333581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12832,15 +14268,38 @@ MonoBehaviour:
   padding:
     input: 
     usings: []
+    transition:
+      rid: -2
   spacing:
     input: Settings.spacing
     usings: []
+    transition:
+      rid: 1128836305408491535
   childAlignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   reverseArrangement:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1128836305408491535
+      type: {class: SpringTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0
+        animateWhen: 0
+        useScaledTime: 0
+        animateFrom: 
+        stiffness: 220
+        damping: 14
+        precision: 0.001
 --- !u!114 &1878043686
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12943,21 +14402,38 @@ MonoBehaviour:
   text:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.text
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1895813953
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13189,21 +14665,38 @@ MonoBehaviour:
   text:
     input: '"Regeneration: " + player.healthRegen.ToString("0.0") + " / s"'
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.text
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1911816014
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13663,21 +15156,38 @@ MonoBehaviour:
   text:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.text
     usings: []
+    transition:
+      rid: -2
   fontSize:
     input: 
     usings: []
+    transition:
+      rid: -2
   fontStyle:
     input: 
     usings: []
+    transition:
+      rid: -2
   alignment:
     input: 
     usings: []
+    transition:
+      rid: -2
   maxVisibleCharacters:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &2033827406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13857,9 +15367,18 @@ MonoBehaviour:
   interactable:
     input: player.IsAlive && player.gold >= 5 && player.currentHealth < player.maxHealth
     usings: []
+    transition:
+      rid: -2
   onClick:
     input: player.Heal(20); player.gold -= 5
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &2036431258
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14321,12 +15840,23 @@ MonoBehaviour:
   alpha:
     input: Settings.panelOpacity
     usings: []
+    transition:
+      rid: -2
   interactable:
     input: 
     usings: []
+    transition:
+      rid: -2
   blocksRaycasts:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!225 &2111387011
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -14357,9 +15887,18 @@ MonoBehaviour:
   effectColor:
     input: new Color(0, 0, 0, 0.35f)
     usings: []
+    transition:
+      rid: -2
   effectDistance:
     input: new Vector2(1, -1) * Settings.spacing / 3
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &2111387013
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14393,15 +15932,56 @@ MonoBehaviour:
   sprite:
     input: 
     usings: []
+    transition:
+      rid: -2
   color:
     input: theme.panel
     usings: []
+    transition:
+      rid: 1128836305408491531
   fillAmount:
     input: 
     usings: []
+    transition:
+      rid: -2
   preserveAspect:
     input: 
     usings: []
+    transition:
+      rid: -2
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 1128836305408491531
+      type: {class: InterpolateTransition, ns: UIConstraints.Core.Animation, asm: UIConstraints.Core}
+      data:
+        delay: 0
+        animateWhen: 0
+        useScaledTime: 0
+        animateFrom: 
+        duration: 0.5
+        fullDurationFrom: 0
+        curve:
+          keys:
+          - time: 0
+            value: 0
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          - time: 1
+            value: 1
+            inTangent: 0
+            outTangent: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+            weightedSides: 0
+          preWrapMode: 0
+          postWrapMode: 0
+        rounding: 0
 --- !u!114 &2111387015
 MonoBehaviour:
   m_ObjectHideFlags: 0

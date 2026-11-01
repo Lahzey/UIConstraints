@@ -169,6 +169,12 @@ public struct Vec {
 		return new Vec(-a.x, -a.y);
 	}
 
+	public static Vec operator -(Vec a, Vec b) {
+		return new Vec(a.x - b.x, a.y - b.y);
+	}
+
+	public float magnitude => (float)System.Math.Sqrt(x * x + y * y);
+
 	public override string ToString() {
 		return $"({x}, {y})";
 	}

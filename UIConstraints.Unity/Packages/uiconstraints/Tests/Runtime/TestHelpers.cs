@@ -15,6 +15,7 @@ public static class TestData {
 	public static List<int> changingNumbers = new List<int>(); // for tests that change it, which set it up themselves
 	public static int clicked;
 	public static float volume;
+	public static Sprite[] sprites = new Sprite[0];
 }
 
 public static class TestHelpers {

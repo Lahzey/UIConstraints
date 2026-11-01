@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke-width="1">
+  <!--
+    UI Constraints icon: Transition
+    Shows: an ease in-out curve between a start and an end point, as the value moves along such a curve to its new value
+    Used by: the button of code inputs that turns the animation of their value on (Unity CodeInputDrawer), Godot the equivalent editor button
+
+    Conventions (shared by all icons, see ../README.md):
+    - 16x16 grid. 1px strokes are on half pixel coordinates (e.g. x="1.5"), so they cover whole pixels and stay sharp.
+    - Not a component, so it has no category color and no badge. It uses the amber of the badge, which stands for everything driven by expressions.
+  -->
+
+  <!-- the axes of the curve's graph: time to the right, value up -->
+  <path d="M1.5 1.5v13h13" stroke="#8A939B" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- the curve: flat at the start, steep in the middle, flat at the end -->
+  <path d="M3.5 12.5C8 12.5 7.5 3.5 12.5 3.5" stroke="#F2B134" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- the start and end points of the transition -->
+  <circle cx="3.5" cy="12.5" r="1.5" fill="#F2B134" stroke="#8A5A00"/>
+  <circle cx="12.5" cy="3.5" r="1.5" fill="#F2B134" stroke="#8A5A00"/>
+</svg>

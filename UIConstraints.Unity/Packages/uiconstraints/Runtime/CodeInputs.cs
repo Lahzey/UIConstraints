@@ -47,6 +47,15 @@ public interface ISharedUsings {
 }
 
 /**
+ * A component whose CodeInput fields can be animated (see CodeInput.transition), e.g. the properties of a constraint for an image.
+ */
+public interface IAnimatedInputs {
+	// the type of the animated value of the field, null if the field can't be animated (e.g. because it is an action)
+	[CanBeNull]
+	Type GetAnimatedType(FieldInfo field);
+}
+
+/**
  * Parses the CodeInput fields of components with everything their result depends on: the usings of the input, the variables available at the component (see VariableScopes)
  * and what the field expects (see ResultTypeAttribute and TypeInputAttribute). Constraints, the inspector and the editor validation all parse this way, so they always agree.
  */
@@ -97,6 +106,20 @@ public static class CodeInputs {
 	public static IEnumerable<string> GetUsings(Component owner, [CanBeNull] CodeInput input) {
 		IEnumerable<string> shared = (owner as ISharedUsings)?.SharedUsings ?? Enumerable.Empty<string>();
 		return input == null ? shared : shared.Concat(input.usings);
+	}
+
+	/**
+	 * Parses the 'animate from' expression of the transition of a field (see Transition.animateFrom), like the input itself: with the same usings and variables,
+	 * and the same result type. Null if the field has no transition or no 'animate from'.
+	 */
+	[CanBeNull]
+	public static ParseResult ParseAnimateFrom(Component owner, FieldInfo field, [CanBeNull] IReadOnlyDictionary<string, Type> availableVariables = null) {
+		CodeInput input = (CodeInput)field.GetValue(owner);
+		string animateFrom = input?.transition?.animateFrom;
+		if (string.IsNullOrWhiteSpace(animateFrom)) return null;
+
+		ParseContext context = new ParseContext(GetUsings(owner, input), GetVariables(field, availableVariables ?? VariableScopes.GetAvailableVariables(owner)));
+		return ParseCache.GetParseResultAwait(animateFrom, context, ParseTarget.Value, GetResultType(field));
 	}
 
 	// parses a CodeInput field of a component, blocks until it is parsed (see ParseCache.GetParseResultAwait)

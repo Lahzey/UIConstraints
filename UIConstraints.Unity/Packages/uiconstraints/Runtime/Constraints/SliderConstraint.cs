@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace UIConstraints.Unity.Constraints {
@@ -20,7 +20,7 @@ public class SliderConstraint : ComponentConstraint<Slider> {
 		// the range first, as the value is clamped to it
 		BindProperty<float>(nameof(minValue), s => s.minValue, (s, newMinValue) => s.minValue = newMinValue);
 		BindProperty<float>(nameof(maxValue), s => s.maxValue, (s, newMaxValue) => s.maxValue = newMaxValue);
-		BindProperty<float>(nameof(value), s => s.value, (s, newValue) => s.SetValueWithoutNotify(newValue));
+		BindProperty<float>(nameof(value), s => s.value, (s, newValue) => s.SetValueWithoutNotify(newValue), true);
 		BindProperty<bool>(nameof(interactable), s => s.interactable, (s, newInteractable) => s.interactable = newInteractable);
 		BindAction(nameof(onValueChanged), Target.onValueChanged);
 	}

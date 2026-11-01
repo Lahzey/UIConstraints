@@ -18,6 +18,7 @@ public class CodeInputDrawer : PropertyDrawer {
 	private Vector2 lastPreferredSize;
 
 	private ParseResult parseResult;
+	private readonly TransitionSection transitionSection = new TransitionSection();
 
 	// using entries that would fix each error of the parse result (empty for errors that are not caused by an unresolved identifier)
 	private ParseResult suggestionsParseResult;
@@ -36,8 +37,13 @@ public class CodeInputDrawer : PropertyDrawer {
 		if (Event.current.type == EventType.Repaint) EditorStyles.helpBox.Draw(box, false, false, false, false); // not GUI.Box, as that would allocate a control ID in repaint events only
 		position = new Rect(box.x + BOX_PADDING, box.y + BOX_PADDING, box.width - BOX_PADDING * 2, box.height - BOX_PADDING * 2);
 
+		// the title, with the button that turns the animation of the value on (for inputs that can be animated, see TransitionSection)
 		lastTitleHeight = EditorStyles.boldLabel.CalcSize(label).y + EditorGUIUtility.standardVerticalSpacing;
-		GUI.Label(new Rect(position.x, position.y, position.width, lastTitleHeight), label, EditorStyles.boldLabel);
+		Rect titleRect = new Rect(position.x, position.y, position.width, lastTitleHeight);
+		SerializedProperty transitionProperty = property.FindPropertyRelative("transition");
+		Type animatedType = TransitionSection.GetAnimatedType(property, fieldInfo);
+		if (animatedType != null) titleRect = TransitionSection.DrawHeader(titleRect, transitionProperty, animatedType);
+		GUI.Label(titleRect, label, EditorStyles.boldLabel);
 		position.y += lastTitleHeight;
 		position.height -= lastTitleHeight;
 
@@ -60,16 +66,20 @@ public class CodeInputDrawer : PropertyDrawer {
 
 		// code input, accepting a suggestion may add to the usings
 		float errorsHeight = GetErrorsHeight();
-		Rect codeAreaPosition = new Rect(position.x, position.y, position.width, position.height - errorsHeight);
+		float transitionHeight = animatedType != null ? transitionSection.GetHeight(transitionProperty) : 0;
+		Rect codeAreaPosition = new Rect(position.x, position.y, position.width, position.height - errorsHeight - transitionHeight);
 		SerializedProperty sourceProperty = property.FindPropertyRelative("input");
 		sourceProperty.stringValue = CodeArea.ScrolledArea(codeAreaPosition, sourceProperty.stringValue, usings, variables, target, parseResult, GUI.skin.label, out lastPreferredSize);
 
 		// errors below the code input, with buttons to add usings that would fix them
 		DrawErrors(new Rect(position.x, codeAreaPosition.yMax, position.width, errorsHeight), usings);
+
+		// the animation settings, if they are expanded
+		IEnumerable<string> allUsings = sharedUsingsProperty != null ? usings.Concat(ReadUsings(ownUsingsProperty)).ToList() : usings;
+		if (animatedType != null) transitionSection.Draw(new Rect(position.x, codeAreaPosition.yMax + errorsHeight, position.width, transitionHeight), transitionProperty, animatedType, usings, allUsings, variables, resultType);
 		WriteUsings(usingsProperty, usings);
 
 		// parse current input, with the input's own usings too (see CodeInputs.GetUsings)
-		IEnumerable<string> allUsings = sharedUsingsProperty != null ? usings.Concat(ReadUsings(ownUsingsProperty)) : usings;
 		ParseContext context = new ParseContext(allUsings, variables);
 		string source = sourceProperty.stringValue;
 		if (parseResult == null || source != parseResult.source || context.key != parseResult.context.key) parseResult = ParseCache.GetParseResult(source, context, target, resultType) ?? parseResult; // will return null if that source has not been parsed yet, in which case we will stick with the old parse result until the new one is ready
@@ -103,7 +113,8 @@ public class CodeInputDrawer : PropertyDrawer {
 
 	public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
 		float usingsHeight = GetSharedUsingsProperty(property) == null ? UsingsHeight : 0;
-		return BOX_PADDING * 2 + lastTitleHeight + usingsHeight + lastPreferredSize.y + GetErrorsHeight() + BOX_GAP;
+		float transitionHeight = TransitionSection.GetAnimatedType(property, fieldInfo) != null ? transitionSection.GetHeight(property.FindPropertyRelative("transition")) : 0;
+		return BOX_PADDING * 2 + lastTitleHeight + usingsHeight + lastPreferredSize.y + GetErrorsHeight() + transitionHeight + BOX_GAP;
 	}
 
 	// one line per error, plus one line for the buttons of errors with suggestions

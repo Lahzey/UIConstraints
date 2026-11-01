@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 namespace UIConstraints.Unity.Constraints {
@@ -18,7 +18,7 @@ public class InputFieldConstraint : ComponentConstraint<TMP_InputField> {
 	[SerializeField, Action("value", typeof(string)), Tooltip("Executed when enter is pressed")] private CodeInput onSubmit;
 
 	protected override void Bind() {
-		BindProperty<string>(nameof(text), i => i.text, (i, value) => i.SetTextWithoutNotify(value ?? ""));
+		BindProperty<string>(nameof(text), i => i.text, (i, value) => i.SetTextWithoutNotify(value ?? ""), true);
 		BindProperty<string>(nameof(placeholder), i => (i.placeholder as TMP_Text)?.text, SetPlaceholder);
 		BindProperty<bool>(nameof(interactable), i => i.interactable, (i, value) => i.interactable = value);
 		BindAction(nameof(onValueChanged), Target.onValueChanged);
